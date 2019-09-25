@@ -8,7 +8,9 @@ We tested it with diploid and polyploid species of the genus Brachypodium, for w
 
 This first step requires https://github.com/eead-csic-compbio/get_homologues and the set of transcripts in folder [genome_assemblies](./genome_assemblies), most of them assembled de novo with https://github.com/trinityrnaseq/trinityrnaseq
 
-```get_homologues/get_homologues-est.pl -d genome_transcripts/ -m cluster -I genome_transcripts/species.list -M -A -S 80 &> log.gen.M.A.S80.core.clusters```
+```get_homologues/get_homologues-est.pl -d genome_transcripts/ -m cluster -I \
+	genome_transcripts/species.list -M -A -S 80 &> \
+	genome_transcriptslog.gen.M.A.S80.core.clusters```
 
 
 # 3324 clusters
