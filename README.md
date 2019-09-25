@@ -3,7 +3,7 @@
 This pipeline was designed by Ruben Sancho, Pilar Catalan and Bruno Contreras Moreira for the selection of transcripts for phylogeny reconstruction of allopolyploid species. It uses what we call the **nearest diploid species node algorithm**. We tested it with diploid and polyploid species of the genus Brachypodium, for which we had data obtained in collaboration with David des Marais. We believe the ideas and the code could be taylored to other clades as well.
 
 
-## 0) Core transcripts expressed in all Brachypodium species plus two outgroups: rice & barley
+## 1) Core transcripts expressed in all Brachypodium species plus two outgroups: rice & barley
 
 This first step requires https://github.com/eead-csic-compbio/get_homologues and the set of transcripts in folder [genome_transcripts](./genome_transcripts), most of them assembled de novo with https://github.com/trinityrnaseq/trinityrnaseq
 
@@ -24,23 +24,23 @@ get_homologues/plot_matrix_heatmap.sh -i 00_get_homologues/genome_transcripts_es
 We can now compute pan-gene matrices for these core clusters:
 ```
 get_homologues/compare_clusters.pl -d 00_get_homologues_est/genome_transcripts_est_homologues/arb8075_alltaxa_species.list_algOMCL_e0_S80_ \
-   -o core_clusters_Hordeum -m -n &> 00_get_homologues/log.compare.core
+   -o 00_get_homologues/core_clusters_Hordeum -m -n &> 00_get_homologues/log.compare.core
 ```
 
-*Note*: this creates folder *core_cluster_Hordeum*, not containd in this repository
+**Note**: this creates folder **core_cluster_Hordeum**
 
 ## 2) Multiple alignment trimmed blocks of core clusters
 
 From the clusters obtained earlier we can now produce [MVIEW](https://github.com/desmid/mview) collapsed, multiple sequence alignments (MSA), while also annotating Pfam domains:
 ```
-for FILE in `ls core_clusters_Hordeum/*gethoms.fna; do
+for FILE in `ls 00_get_homologues/core_clusters_Hordeum/*gethoms.fna; do
    echo $FILE;
    get_homologues/annotate_cluster.pl -D -f $FILE -o $FILE.aln.fna -c 20 &>> \
 		00_get_homologues/log.core.collapse.align
 done
 ```
 
-We might need to simplify the FASTA headers, which is something that should be taylored according to the user's data. The resulting files are stored in folder *01_core_transcript_aligned*: 
+We might need to simplify the FASTA headers, which is something that should be taylored according to the user's data. The resulting files are stored in folder **01_core_transcript_aligned**: 
 ```
 for FILE in *collapsed.fna.gethoms.fna.aln.fna; do
 echo $FILE;
@@ -48,8 +48,7 @@ perl -p -i -e 's/>(.+?) .+/>$1/g; s/:\d+:\d+:[+-]//g' $FILE;
 done
 ```
 
-We now take these alignments of nucleotide sequences of both diploid and polyploid species and produce trimmed FASTA files suitable for phylogenetic tree inference. The goal is to define a solid diploid backbone, which should be covered by outgroup sequences as well, and then use it to filter out polyploid sequences/alleles with diploid block overlap < $MINBLOCKOVERLAP. 
-These parameters are set in [scripts/_trim_MSA_block.pl](./scripts/_trim_MSA_block.pl):
+We now take these alignments of nucleotide sequences of both diploid and polyploid species and produce trimmed FASTA files suitable for phylogenetic tree inference. The goal is to define a solid diploid backbone, which should be covered by outgroup sequences as well, and then use it to filter out polyploid sequences/alleles with diploid block overlap < $MINBLOCKOVERLAP. Therefore, some sequences and species could be removed from the initial input. These parameters are set in [scripts/_trim_MSA_block.pl](./scripts/_trim_MSA_block.pl):
 ```
 my $MINBLOCKLENGTH = 100;
 my $MINBLOCKOVERLAP = 0.50; # fraction of diploid block covered by outgroups and polyploid seqs
@@ -61,7 +60,7 @@ my @diploids = qw( _Bsta _Bdis _Barb _Bpin _Bsyl );
 # diploid outgroups: best block-overlapping sequence will be conserved
 my @outgroups = qw( _Osat _Hvul );
 ```
-The resulting files are stored in folder *02_blocks*:
+The resulting files are stored in folder **02_blocks**:
 ```
 for FILE in *.fna; do
 echo $FILE;
@@ -69,7 +68,7 @@ perl scripts/_trim_MSA_block.pl $FILE $FILE.block.fna &>> log.blocks;
 done
 ```
 
-We can now trim the resulting blocks with https://vicfero.github.io/trimal . The results are stored in folder [03_blocks_trimmed](./03_blocks_trimmed). *Note* that the number valid MSA has now reduced to 1709:
+We can now trim the resulting blocks with https://vicfero.github.io/trimal . The results are stored in folder [03_blocks_trimmed](./03_blocks_trimmed). **Note** that the number valid MSA has now reduced to just over 1700:
 ```
 for FILE in *block.fna; do
 echo $FILE;
@@ -77,39 +76,33 @@ trimal/source/trimal -in $FILE -out $FILE.trimmed.fna -automated1;
 done
 ```
 
-## 3) Compute Maximum Likelihood (ML) gene trees with IQ-TREE http://www.iqtree.org
+## 3) Maximum Likelihood (ML) gene trees 
 
+We can run [IQ-TREE](http://www.iqtree.org) in [parallel](https://www.gnu.org/software/parallel) 
+and store the results in folder **04_iqtree**:
+```
 ls *.trimmed.fna | parallel --gnu -j 3 iqtree-omp-1.5.5-Linux/bin/iqtree-omp -alrt 1000 -bb 1000 -nt 3 -AICc -s {} :::
+```
 
-mkdir 04_iqtree
-
-IMPORTANT: some sequences (and species) could be removed.
-
-# Root and sort nodes in trees
-
-mkdir 05_iqtree_rooted_sorted
-
+We will now root and ladderize the nodes in the resulting trees, which are stored in folder [05_iqtree_rooted_sorted](./05_iqtree_rooted_sorted):
+````
 for FILE in *treefile; do
 perl _reroot_tree.pl $FILE > $FILE.root.ph;
 echo $FILE;
 done 
+```
 
-
-# Check how many different diploid backbones there are and select gene trees with consistent diploid backbone
-
-Run into 05_iqtree_rooted_sorted
-
+We can now ask how many different diploid backbones are there and select gene trees with consistent diploid backbone. The next script must be run within folder **05_iqtree_rooted_sorted**:
+```
 for FILE in *root.ph; do
 perl _check_diploids.pl $FILE _Osat; done > log.diploids;
 done
 
-
-## Print statistics in table format
-
 grep -v "#" log.diploids | \
    perl -F"," -ane 'foreach $tx (0 .. $#F){ $ord{$F[$tx]}{$tx}++ } END{ foreach $tx (keys(%ord)){ print "$tx"; foreach $t (0 .. 6){ printf("\t%d",$ord{$tx}{$t}||0) } print "\n" } }'
+```
 
-
+We obtain these statistics:
 Osat    1707    0       0       0       0       0       0
 Hvul    0       1527    46      31      17      7       0
 Bsta    0       64      936     247     90      53      0
