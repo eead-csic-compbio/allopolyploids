@@ -27,53 +27,43 @@ get_homologues/compare_clusters.pl -d 00_get_homologues_est/genome_transcripts_e
    -o core_clusters_Hordeum -m -n &> 00_get_homologues/log.compare.core
 ```
 
-And, more importantly, produce piled-up BLASTN alignments for each cluster, while also annotating Pfam domains:
-´´´
+*Note*: this creates folder *core_cluster_Hordeum*, not containd in this repository
+
+## 2) Multiple alignment trimmed blocks of core clusters
+
+From the clusters obtained earlier we can now produce [MVIEW](https://github.com/desmid/mview) collapsed, multiple sequence alignments (MSA), while also annotating Pfam domains:
+```
 for FILE in `ls core_clusters_Hordeum/*gethoms.fna; do
    echo $FILE;
    get_homologues/annotate_cluster.pl -D -f $FILE -o $FILE.aln.fna -c 20 &>> log.core.collapse.align
 done
 ```
 
-
-######################################################## nearest diploid species node algorithm #####################################################
-
-# Simplify headers (Users have to adapt it for each kind of header) 
-
-mkdir 01_core_transcript_aligned
-
-NOTE: *collapsed.fna.gethoms.fna.aln.fna files do not save
-
+We might need to simplify the FASTA headers, which is something that should be taylored according to the user's data. The resulting files are stored in folder *01_core_transcript_aligned*: 
+```
 for FILE in *collapsed.fna.gethoms.fna.aln.fna; do
 echo $FILE;
 perl -p -i -e 's/>(.+?) .+/>$1/g; s/:\d+:\d+:[+-]//g' $FILE;
 done
+```
 
-
-# Take a FASTA multiple alignment of [nucleotide] sequences of diploid and polyploid species and produces a trimmed MSA suitable for phylogenetic tree inference.
-# The goal is to define a solid diploid backbone, which should be covered by outgroup sequences as well, and then use it to filter out polyploid sequences with diploid block overlap < $MINBLOCKOVERLAP
-
-mkdir 02_blocks
-
+We now take these alignments of nucleotide sequences of both diploid and polyploid species and produce trimmed FASTA files suitable for phylogenetic tree inference. The goal is to define a solid diploid backbone, which should be covered by outgroup sequences as well, and then use it to filter out polyploid sequences/alleles with diploid block overlap < $MINBLOCKOVERLAP. The resulting files are stored in folder *02_blocks*:
+```
 for FILE in *.fna; do
 echo $FILE;
-perl _trim_MSA_block.pl $FILE $FILE.block.fna &>> log.blocks;
+perl scripts/_trim_MSA_block.pl $FILE $FILE.block.fna &>> log.blocks;
 done
+```
 
-
-# trimAl (https://vicfero.github.io/trimal/)
-
-# "Trim the alignment searching for optimum thresholds based on inherent characteristics of the input alignment"
-
-mkdir 03_blocks_trimmed
-
+We can now trim the resulting blocks with https://vicfero.github.io/trimal . The results are stored in folder [03_blocks_trimmed](./03_blocks_trimmed):
+```
 for FILE in *block.fna; do
 echo $FILE;
 trimal/source/trimal -in $FILE -out $FILE.trimmed.fna -automated1;
 done
+```
 
-
-# Compute ML gene trees by IQ-TREE software (http://www.iqtree.org)
+## 3) Compute Maximum Likelihood (ML) gene trees with IQ-TREE http://www.iqtree.org
 
 ls *.trimmed.fna | parallel --gnu -j 3 iqtree-omp-1.5.5-Linux/bin/iqtree-omp -alrt 1000 -bb 1000 -nt 3 -AICc -s {} :::
 
