@@ -3,17 +3,13 @@
 This pipeline was designed by Ruben Sancho, Pilar Catalan and Bruno Contreras Moreira for the selection of transcripts for phylogeny reconstruction of allopolyploid species.
 We tested it with diploid and polyploid species of the genus Brachypodium, for which we had data obtained in collaboration with David des Marais. We believe the ideas and the code could be taylored to other clades as well.
 
-################################################### GET-HOMOLOGUES-EST ############################################################
 
-https://github.com/eead-csic-compbio/get_homologues
+## 0) Core transcripts expressed in all Brachypodium species plus two outgroups: rice & barley
 
-# RECOVER CORE-TRANSCRIPTS CLUSTERS
+This first step requires https://github.com/eead-csic-compbio/get_homologues and the set of transcripts in folder [genome_assemblies](./genome_assemblies), most of them assembled de novo with https://github.com/trinityrnaseq/trinityrnaseq
 
-## Core transcripts include Brachypodium species plus outgroups Oryza sativa and Hordeum vulgare
+```get_homologues/get_homologues-est.pl -d genome_transcripts/ -m cluster -I genome_transcripts/species.list -M -A -S 80 &> log.gen.M.A.S80.core.clusters```
 
-Input data --> "genome_transcripts" directory with all assemblies "fna.gz" from Trinity
-
-get_homologues/get_homologues-est.pl -d genome_transcripts/ -m cluster -I genome_transcripts/species.list -M -A -S 80 &> log.gen.M.A.S80.core.clusters
 
 # 3324 clusters
 
