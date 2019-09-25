@@ -48,7 +48,7 @@ perl -p -i -e 's/>(.+?) .+/>$1/g; s/:\d+:\d+:[+-]//g' $FILE;
 done
 ```
 
-We now take these alignments of nucleotide sequences of both diploid and polyploid species and produce trimmed FASTA files suitable for phylogenetic tree inference. The goal is to define a solid diploid backbone, which should be covered by outgroup sequences as well, and then use it to filter out polyploid sequences/alleles with diploid block overlap < $MINBLOCKOVERLAP. Therefore, some sequences and species could be removed from the initial input. These parameters are set in [scripts/_trim_MSA_block.pl](./scripts/_trim_MSA_block.pl):
+We now take these alignments of nucleotide sequences of both diploid and polyploid species and produce trimmed FASTA files suitable for phylogenetic tree inference. The goal is to define a solid diploid backbone, which should be covered by outgroup sequences as well, and then use it to filter out polyploid sequences/alleles with diploid block overlap < $MINBLOCKOVERLAP. Therefore, some sequences and species might be removed from the initial input. These parameters are set in [scripts/_trim_MSA_block.pl](./scripts/_trim_MSA_block.pl), which also shortens the species names:
 ```
 my $MINBLOCKLENGTH = 100;
 my $MINBLOCKOVERLAP = 0.50; # fraction of diploid block covered by outgroups and polyploid seqs
@@ -78,21 +78,24 @@ done
 
 ## 3) Maximum Likelihood (ML) gene trees 
 
-We can run [IQ-TREE](http://www.iqtree.org) in [parallel](https://www.gnu.org/software/parallel) 
+We can now run [IQ-TREE](http://www.iqtree.org) in [parallel](https://www.gnu.org/software/parallel) 
 and store the results in folder **04_iqtree**:
 ```
 ls *.trimmed.fna | parallel --gnu -j 3 iqtree-omp-1.5.5-Linux/bin/iqtree-omp -alrt 1000 -bb 1000 -nt 3 -AICc -s {} :::
 ```
 
-We will now root and ladderize the nodes in the resulting trees, which are stored in folder [05_iqtree_rooted_sorted](./05_iqtree_rooted_sorted):
+We will now root and ladderize the nodes (starting with rice) in the resulting trees, which are stored in folder [05_iqtree_rooted_sorted](./05_iqtree_rooted_sorted). **Note** this script requires Perl modules [Bio::TreeIO](https://metacpan.org/pod/Bio::TreeIO) and 
+[Bio::Phylo](https://metacpan.org/pod/Bio::Phylo):
 ````
+sudo cpan -i Bio::TreeIO Bio::Phylo
+
 for FILE in *treefile; do
 perl _reroot_tree.pl $FILE > $FILE.root.ph;
 echo $FILE;
 done 
 ```
 
-We can now ask how many different diploid backbones are there and select gene trees with consistent diploid backbone. The next script must be run within folder **05_iqtree_rooted_sorted**:
+We can now ask how many different diploid backbones are there and select gene trees with consistent diploid backbone. The next script must be run within folder **05_iqtree_rooted_sorted** and requires http://cegg.unige.ch/newick_utils :
 ```
 for FILE in *root.ph; do
 perl _check_diploids.pl $FILE _Osat; done > log.diploids;
@@ -103,6 +106,7 @@ grep -v "#" log.diploids | \
 ```
 
 We obtain these statistics:
+```
 Osat    1707    0       0       0       0       0       0
 Hvul    0       1527    46      31      17      7       0
 Bsta    0       64      936     247     90      53      0
@@ -117,51 +121,48 @@ Bdis*   0       0       12      128     23      7       62
 Barb*   0       0       5       19      30      26      245
 Bpin*   0       0       8       25      24      8       294
 Bsyl*   0       0       7       24      20      23      332
+```
 
-
-### Print topology predominance list
-
+And consequently save our topology predominance list in a file:
+´´´´
 sort log.diploids  | uniq -c | sort -n
 
+# NOTE: not all grep binaries have --no-group-separator flag
 grep -B 8 --no-group-separator -e 'Osat,Hvul,Bsta,Bdis,Barb,Bsyl,Bpin,' -e 'Osat,Hvul,Bsta,Bdis,Barb,Bpin,Bsyl,' log.diploids | grep treefile.root.ph | sed 's/# //g' | sed 's/ /\n/g' > list.diploids_congruent_pruned_diploid_topology
+````
 
-
-## Copy files (root.ph and root.ph.pruned) and fna with congruent diploid topologies in directory "06_diploid_clusters_pruned_diploid_topology"
-
-mkdir 06_diploid_clusters_pruned_diploid_topology
-
-ls | grep -f list.diploids_congruent_pruned_diploid_topology | xargs cp -t 06_diploid_clusters_pruned_diploid_topology/
+We'll now copy files (.fna, root.ph, root.ph.pruned) with congruent diploid topologies to folder [06_diploid_clusters_pruned_diploid_topology](./06_diploid_clusters_pruned_diploid_topology):
+```
+ls | grep -f list.diploids_congruent_pruned_diploid_topology | \
+	xargs cp -t 06_diploid_clusters_pruned_diploid_topology/
 
 ls *.root.ph | sed 's/.treefile.root.ph//g' > list_fna_06_diploid_clusters_pruned_diploid_topology
 
-ls | grep -f list_fna_06_diploid_clusters_pruned_diploid_topology | xargs cp -t 06_diploid_clusters_pruned_diploid_topology/
+ls | grep -f list_fna_06_diploid_clusters_pruned_diploid_topology | \
+	xargs cp -t 06_diploid_clusters_pruned_diploid_topology/
+```
 
-## Save .root.ph and fna files
+## 4) Trees and MSA with topology-labelled allopolyploid sequences
 
-## 275 root.ph
-## 275 root.ph.pruned
-## 275 fna
+In this step we must not label allopolyploid sequences with some pre-defined code according to their position with respect to the diploid backbone. We'll do that with [scripts/_check_lineages_polyploids_ABCDEFGHI.pl](./scripts/_check_lineages_polyploids_ABCDEFGHI.pl), which has several parameters defined therein:
+```
+my @diploids = qw( Osat Hvul Bsta Bdis Barb Bpin Bsyl ); # expects one seq per species and tree
+my @polyploids = ('Bhyb','Bboi','Bret','Bmex','Brup','Bpho','B422');
+my @CODES = qw( A B C D E F G H I all ); # see hard-coded rules below
+```
+This script takes as input an MSA corresponding to an input tree file and produces two labelled MSA files with sorted diploid and polyploid (A,B,C,etc) species, a full MSA with some only-gap rows, and a reduced MSA excluding those. Ad-hoc rules encoded herein (see below) define pairs of diploid species where one on the can be missing in the alignment. These rules should be carefully adapted to other clades. Labelled files are stored in folder [07_files_labelled_ABCDEFGHI](./07_files_labelled_ABCDEFGHI): 
 
-# Label allopolyploid sequences with @CODES according to their position with respect to the diploid backbone.
-# INPUT: Reads multiple sequence alignment (MSA) corresponding to input tree file (.root.ph) 
-# OUTPUT: produces two labelled MSA files with sorted diploid and polyploid (A,B,C,etc) species, a full MSA with some only-gap rows, and a reduced MSA excluding those.
-# Ad-hoc rules encoded herein (see below) define pairs of diploid species where one on the can be missing in the alignment.
-
-
+```
 
 ls -1 *root.ph | perl -lne 'print `../../_check_lineages_polyploids_ABCDEFGHI.pl $_`' &> log.lineage_codes_blocks_ABCDEFGHI
+````
 
+**Important:** labelled files must be curated manually and any errors corrected
 
-labelled files (fna, ph) moved --> 07_files_labelled_ABCDEFGHI
+In our study we obtained these label stats:
 
-### check de visu and correct if it is necessary
-
-# STATISTICS POLYPLOIDS (ABCDEFGHI) using pruned diploid strategy and _check_lineages_polyploids_ABCDEFGHI
-
- list_subgenomes.txt
-
-
-IMPORTANT: Note that those labels are showed as lowercase letter in the paper
+```
+IMPORTANT: these labels are in lowercase in the published paper
 
       A    B     C    D    E    F    G    H    I     all
 Bhyb  2    137   2    90   0    0    0    0    1     232
@@ -171,7 +172,7 @@ Bret  42   12    40   9    63   21   31   9    17    244
 Brup  0    1     2    5    53   29   71   49   45    255
 B422  1    2     3    4    56   40   66   37   36    245
 Bpho  1    0     4    4    66   42   64   30   43    254
-
+```
 
 
 
