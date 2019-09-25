@@ -35,7 +35,8 @@ From the clusters obtained earlier we can now produce [MVIEW](https://github.com
 ```
 for FILE in `ls core_clusters_Hordeum/*gethoms.fna; do
    echo $FILE;
-   get_homologues/annotate_cluster.pl -D -f $FILE -o $FILE.aln.fna -c 20 &>> log.core.collapse.align
+   get_homologues/annotate_cluster.pl -D -f $FILE -o $FILE.aln.fna -c 20 &>> \
+		00_get_homologues/log.core.collapse.align
 done
 ```
 
@@ -47,7 +48,20 @@ perl -p -i -e 's/>(.+?) .+/>$1/g; s/:\d+:\d+:[+-]//g' $FILE;
 done
 ```
 
-We now take these alignments of nucleotide sequences of both diploid and polyploid species and produce trimmed FASTA files suitable for phylogenetic tree inference. The goal is to define a solid diploid backbone, which should be covered by outgroup sequences as well, and then use it to filter out polyploid sequences/alleles with diploid block overlap < $MINBLOCKOVERLAP. The resulting files are stored in folder *02_blocks*:
+We now take these alignments of nucleotide sequences of both diploid and polyploid species and produce trimmed FASTA files suitable for phylogenetic tree inference. The goal is to define a solid diploid backbone, which should be covered by outgroup sequences as well, and then use it to filter out polyploid sequences/alleles with diploid block overlap < $MINBLOCKOVERLAP. 
+These parameters are set in [scripts/_trim_MSA_block.pl](./scripts/_trim_MSA_block.pl):
+```
+my $MINBLOCKLENGTH = 100;
+my $MINBLOCKOVERLAP = 0.50; # fraction of diploid block covered by outgroups and polyploid seqs
+
+# short names of species used to define diploid block (see %long2short below)
+# 1 per taxon will be selected for optimizing diploid block
+my @diploids = qw( _Bsta _Bdis _Barb _Bpin _Bsyl );
+
+# diploid outgroups: best block-overlapping sequence will be conserved
+my @outgroups = qw( _Osat _Hvul );
+```
+The resulting files are stored in folder *02_blocks*:
 ```
 for FILE in *.fna; do
 echo $FILE;
@@ -55,7 +69,7 @@ perl scripts/_trim_MSA_block.pl $FILE $FILE.block.fna &>> log.blocks;
 done
 ```
 
-We can now trim the resulting blocks with https://vicfero.github.io/trimal . The results are stored in folder [03_blocks_trimmed](./03_blocks_trimmed):
+We can now trim the resulting blocks with https://vicfero.github.io/trimal . The results are stored in folder [03_blocks_trimmed](./03_blocks_trimmed). *Note* that the number valid MSA has now reduced to 1709:
 ```
 for FILE in *block.fna; do
 echo $FILE;
@@ -223,7 +237,7 @@ ls *.fna | parallel --gnu -j 50 iqtree-1.6.9-Linux/bin/iqtree -b 1000 -nt 1 -AIC
 Output --> 1000 bootstrapping trees for each fna file 
 
 
-# Run bootstrap_label_stats.pl script to root, sort and re-label bootstrapping trees
+# Run _bootstrap_label_stats.pl script to root, sort and re-label bootstrapping trees
 
 Input --> iqtree_non_parametric_bootstrap_1000 directory with .boottrees for IQTREE bootstrapping
 
