@@ -11,35 +11,30 @@ This first step requires https://github.com/eead-csic-compbio/get_homologues and
 ```
 get_homologues/get_homologues-est.pl -d genome_transcripts/ -m cluster -I \
 	genome_transcripts/species.list -M -A -S 80 &> \
-	genome_transcriptslog.gen.M.A.S80.core.clusters
+	00_get_homologues/log.gen.M.A.S80.core.clusters
 ```
 
 This produces 3324 clusters (see this [folder](./00_get_homologues/genome_transcripts_est_homologues/arb8075_alltaxa_species.list_algOMCL_e0_S80_)) and an Average Nucleotide Identity (ANI) matrix, which we can plot with: 
 
-````
+```
 get_homologues/plot_matrix_heatmap.sh -i 00_get_homologues/genome_transcripts_est_homologues/arb8075_alltaxa_no_sorghum.list_algOMCL_e0_S80_Avg_identity.tab \
 	-H 10 -W 18 -t "ANI of transcripts in 3324 core clusters" -o svg -d 1
 ```
 ![ANI matrix](00_get_homologues/genome_transcripts_est_homologues/arb8075_alltaxa_species.list_algOMCL_e0_S80_Avg_identity_heatmap.svg)
 
-# The core clusters obtained in the previous section are used to compile a pangenome matrix without singletons
-
+We can now compute pan-gene matrices for these core clusters:
+```
 get_homologues/compare_clusters.pl -d 00_get_homologues_est/genome_transcripts_est_homologues/arb8075_alltaxa_no_sorghum.list_algOMCL_e0_S80_ \
-   -o core_clusters_Hordeum -m -n &> log.compare.core
+   -o core_clusters_Hordeum -m -n &> 00_get_homologues/log.compare.core
 
 
-# Produce a multiple alignment view of the supporting local BLAST alignments of sequences in a cluster and annotate Pfam domains.
-
-
+And, more importantly, produce piled-up BLASTN alignments for each cluster, while also annotating Pfam domains:
+´´´
 for FILE in `ls core_clusters_Hordeum/*gethoms.fna; do
    echo $FILE;
    get_homologues/annotate_cluster.pl -D -f $FILE -o $FILE.aln.fna -c 20 &>> log.core.collapse.align
 done
-
-see 00_get_homologues
-
-NOTE: core_clusters_Hordeum/*gethoms.fna files do not save
-
+```
 
 ############################################################################################################################
 
