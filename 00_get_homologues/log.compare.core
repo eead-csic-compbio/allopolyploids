@@ -1,0 +1,26 @@
+
+# /home/contrera/soft/github/get_homologues/compare_clusters.pl -d genome_transcripts_est_homologues/arb8075_alltaxa_species.list_algOMCL_e0_S80_ -o core_clusters_Hordeum -n 1 -m 1 -t 0 -I  -r 0 -s 0 -x 0 -T 0
+
+# number of input cluster directories = 1
+
+# parsing clusters in genome_transcripts_est_homologues/arb8075_alltaxa_species.list_algOMCL_e0_S80_ ...
+# cluster_list in place, will parse it (genome_transcripts_est_homologues/arb8075_alltaxa_species.list_algOMCL_e0_S80_.cluster_list)
+# number of clusters = 3324
+
+# intersection output directory: core_clusters_Hordeum
+# intersection size = 3324 clusters
+
+# intersection list = core_clusters_Hordeum/intersection_t0.cluster_list
+
+# pangenome_file = core_clusters_Hordeum/pangenome_matrix_t0.tab
+# pangenome_phylip file = core_clusters_Hordeum/pangenome_matrix_t0.phylip
+# pangenome_FASTA file = core_clusters_Hordeum/pangenome_matrix_t0.fasta
+# pangenome CSV file (Scoary) = core_clusters_Hordeum/pangenome_matrix_t0.tr.csv
+
+# NOTE: matrix can be transposed for your convenience with:
+
+  perl -F'\t' -ane '$r++;for(1 .. @F){$m[$r][$_]=$F[$_-1]};$mx=@F;END{for(1 .. $mx){for $t(1 .. $r){print"$m[$t][$_]\t"}print"\n"}}' \
+   core_clusters_Hordeum/pangenome_matrix_t0.tab
+
+
+# WARNING: Venn diagrams are only available for 2 or 3 input cluster directories
