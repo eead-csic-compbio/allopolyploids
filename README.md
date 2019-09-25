@@ -6,7 +6,7 @@ We tested it with diploid and polyploid species of the genus Brachypodium, for w
 
 ## 0) Core transcripts expressed in all Brachypodium species plus two outgroups: rice & barley
 
-This first step requires https://github.com/eead-csic-compbio/get_homologues and the set of transcripts in folder [genome_assemblies](./genome_assemblies), most of them assembled de novo with https://github.com/trinityrnaseq/trinityrnaseq
+This first step requires https://github.com/eead-csic-compbio/get_homologues and the set of transcripts in folder [genome_transcripts](./genome_transcripts), most of them assembled de novo with https://github.com/trinityrnaseq/trinityrnaseq
 
 ```
 get_homologues/get_homologues-est.pl -d genome_transcripts/ -m cluster -I \
@@ -14,25 +14,13 @@ get_homologues/get_homologues-est.pl -d genome_transcripts/ -m cluster -I \
 	genome_transcriptslog.gen.M.A.S80.core.clusters
 ```
 
+This produces 3324 clusters (see this [folder](./00_get_homologues/genome_transcripts_est_homologues/arb8075_alltaxa_species.list_algOMCL_e0_S80_)) and an Average Nucleotide Identity (ANI) matrix, which we can plot with: 
 
-# 3324 clusters
-
-output in 00_get_homologues
-
----------------------------------------------------------------------------------------------------------------------------
-
-(Optionally)
-
-# print ANI matrix as heatmap and build NJ tree based on 1-ANI distances
-
+````
 get_homologues/plot_matrix_heatmap.sh -i 00_get_homologues/genome_transcripts_est_homologues/arb8075_alltaxa_no_sorghum.list_algOMCL_e0_S80_Avg_identity.tab \
-   -H 10 -W 18 -t "ANI of transcripts in 3324 core clusters" -N -o pdf -d 1
-
-# output --> 00_get_homologues/genome_transcripts_est_homologues/arb8075_alltaxa_no_sorghum.list_algOMCL_e0_S80_Avg_identity_heatmap.pdf
-
-#output --> 00_get_homologues/genome_transcripts_est_homologues/arb8075_alltaxa_no_sorghum.list_algOMCL_e0_S80_Avg_identity_BioNJ.ph
-
----------------------------------------------------------------------------------------------------------------------------
+	-H 10 -W 18 -t "ANI of transcripts in 3324 core clusters" -o svg -d 1
+```
+![ANI matrix](00_get_homologues/genome_transcripts_est_homologues/arb8075_alltaxa_species.list_algOMCL_e0_S80_Avg_identity_heatmap.svg)
 
 # The core clusters obtained in the previous section are used to compile a pangenome matrix without singletons
 
