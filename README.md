@@ -1,6 +1,7 @@
 # allopolyploids
 
-This pipeline was designed by Ruben Sancho Cohen and Bruno Contreras Moreira for the selection of transcripts for phylogeny reconstruction of allopolyploid species. We tested it with diploid and polyploid species of the genus Brachypodium, but we believe the ideas and the code could be taylored to other clades as well. 
+This pipeline was designed by Ruben Sancho, Pilar Catalan and Bruno Contreras Moreira for the selection of transcripts for phylogeny reconstruction of allopolyploid species.
+We tested it with diploid and polyploid species of the genus Brachypodium, for which we had data obtained in collaboration with David des Marais. We believe the ideas and the code could be taylored to other clades as well.
 
 ################################################### GET-HOMOLOGUES-EST ############################################################
 
