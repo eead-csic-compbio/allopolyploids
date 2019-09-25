@@ -1,7 +1,6 @@
 # allopolyploids
 
-This pipeline was designed by Ruben Sancho, Pilar Catalan and Bruno Contreras Moreira for the selection of transcripts for phylogeny reconstruction of allopolyploid species.
-We tested it with diploid and polyploid species of the genus Brachypodium, for which we had data obtained in collaboration with David des Marais. We believe the ideas and the code could be taylored to other clades as well.
+This pipeline was designed by Ruben Sancho, Pilar Catalan and Bruno Contreras Moreira for the selection of transcripts for phylogeny reconstruction of allopolyploid species. It uses what we call the **nearest diploid species node algorithm**. We tested it with diploid and polyploid species of the genus Brachypodium, for which we had data obtained in collaboration with David des Marais. We believe the ideas and the code could be taylored to other clades as well.
 
 
 ## 0) Core transcripts expressed in all Brachypodium species plus two outgroups: rice & barley
@@ -17,16 +16,16 @@ get_homologues/get_homologues-est.pl -d genome_transcripts/ -m cluster -I \
 This produces 3324 clusters (see this [folder](./00_get_homologues/genome_transcripts_est_homologues/arb8075_alltaxa_species.list_algOMCL_e0_S80_)) and an Average Nucleotide Identity (ANI) matrix, which we can plot with: 
 
 ```
-get_homologues/plot_matrix_heatmap.sh -i 00_get_homologues/genome_transcripts_est_homologues/arb8075_alltaxa_no_sorghum.list_algOMCL_e0_S80_Avg_identity.tab \
+get_homologues/plot_matrix_heatmap.sh -i 00_get_homologues/genome_transcripts_est_homologues/arb8075_alltaxa_species.list_algOMCL_e0_S80_Avg_identity.tab \
 	-H 10 -W 18 -t "ANI of transcripts in 3324 core clusters" -o svg -d 1
 ```
 ![ANI matrix](00_get_homologues/genome_transcripts_est_homologues/arb8075_alltaxa_species.list_algOMCL_e0_S80_Avg_identity_heatmap.svg)
 
 We can now compute pan-gene matrices for these core clusters:
 ```
-get_homologues/compare_clusters.pl -d 00_get_homologues_est/genome_transcripts_est_homologues/arb8075_alltaxa_no_sorghum.list_algOMCL_e0_S80_ \
+get_homologues/compare_clusters.pl -d 00_get_homologues_est/genome_transcripts_est_homologues/arb8075_alltaxa_species.list_algOMCL_e0_S80_ \
    -o core_clusters_Hordeum -m -n &> 00_get_homologues/log.compare.core
-
+```
 
 And, more importantly, produce piled-up BLASTN alignments for each cluster, while also annotating Pfam domains:
 ´´´
@@ -36,7 +35,6 @@ for FILE in `ls core_clusters_Hordeum/*gethoms.fna; do
 done
 ```
 
-############################################################################################################################
 
 ######################################################## nearest diploid species node algorithm #####################################################
 
