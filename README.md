@@ -86,7 +86,7 @@ ls *.trimmed.fna | parallel --gnu -j 3 iqtree-omp-1.5.5-Linux/bin/iqtree-omp -al
 
 We will now root and ladderize the nodes (starting with rice) in the resulting trees, which are stored in folder [05_iqtree_rooted_sorted](./05_iqtree_rooted_sorted). **Note** this script requires Perl modules [Bio::TreeIO](https://metacpan.org/pod/Bio::TreeIO) and 
 [Bio::Phylo](https://metacpan.org/pod/Bio::Phylo):
-````
+```
 sudo cpan -i Bio::TreeIO Bio::Phylo
 
 for FILE in *treefile; do
@@ -124,12 +124,12 @@ Bsyl*   0       0       7       24      20      23      332
 ```
 
 And consequently save our topology predominance list in a file:
-´´´´
+```
 sort log.diploids  | uniq -c | sort -n
 
-# NOTE: not all grep binaries have --no-group-separator flag
+# NOTE: not all grep versions have --no-group-separator flag
 grep -B 8 --no-group-separator -e 'Osat,Hvul,Bsta,Bdis,Barb,Bsyl,Bpin,' -e 'Osat,Hvul,Bsta,Bdis,Barb,Bpin,Bsyl,' log.diploids | grep treefile.root.ph | sed 's/# //g' | sed 's/ /\n/g' > list.diploids_congruent_pruned_diploid_topology
-````
+```
 
 We'll now copy files (.fna, root.ph, root.ph.pruned) with congruent diploid topologies to folder [06_diploid_clusters_pruned_diploid_topology](./06_diploid_clusters_pruned_diploid_topology):
 ```
@@ -145,6 +145,7 @@ ls | grep -f list_fna_06_diploid_clusters_pruned_diploid_topology | \
 ## 4) Trees and MSA with topology-labelled allopolyploid sequences
 
 In this step we must not label allopolyploid sequences with some pre-defined code according to their position with respect to the diploid backbone. We'll do that with [scripts/_check_lineages_polyploids_ABCDEFGHI.pl](./scripts/_check_lineages_polyploids_ABCDEFGHI.pl), which has several parameters defined therein:
+
 ```
 my @diploids = qw( Osat Hvul Bsta Bdis Barb Bpin Bsyl ); # expects one seq per species and tree
 my @polyploids = ('Bhyb','Bboi','Bret','Bmex','Brup','Bpho','B422');
