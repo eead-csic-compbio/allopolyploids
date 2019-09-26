@@ -105,7 +105,7 @@ grep -v "#" log.diploids | \
    perl -F"," -ane 'foreach $tx (0 .. $#F){ $ord{$F[$tx]}{$tx}++ } END{ foreach $tx (keys(%ord)){ print "$tx"; foreach $t (0 .. 6){ printf("\t%d",$ord{$tx}{$t}||0) } print "\n" } }'
 ```
 
-We obtain these statistics:
+We obtain these statistics (**note:** * highlights topologies with sister diploids):
 ```
 Osat    1707    0       0       0       0       0       0
 Hvul    0       1527    46      31      17      7       0
