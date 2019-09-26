@@ -123,7 +123,7 @@ Bpin*   0       0       8       25      24      8       294
 Bsyl*   0       0       7       24      20      23      332
 ```
 
-And consequently save our topology predominance list in a file:
+And consequently save our topology predominance list in file [list.diploids_congruent_pruned_diploid_topology](./05_iqtree_rooted_sorted/list.diploids_congruent_pruned_diploid_topology):
 ```
 sort log.diploids  | uniq -c | sort -n
 
@@ -144,7 +144,7 @@ ls | grep -f list_fna_06_diploid_clusters_pruned_diploid_topology | \
 
 ## 4) Trees and MSA with topology-labelled allopolyploid sequences
 
-In this step we must not label allopolyploid sequences with some pre-defined code according to their position with respect to the diploid backbone. We'll do that with [scripts/_check_lineages_polyploids_ABCDEFGHI.pl](./scripts/_check_lineages_polyploids_ABCDEFGHI.pl), which has several parameters defined therein:
+In this step we'll label allopolyploid sequences with some pre-defined code according to their position with respect to the diploid backbone. We'll do that with [scripts/_check_lineages_polyploids_ABCDEFGHI.pl](./scripts/_check_lineages_polyploids_ABCDEFGHI.pl), which has several parameters defined therein:
 
 ```
 my @diploids = qw( Osat Hvul Bsta Bdis Barb Bpin Bsyl ); # expects one seq per species and tree
@@ -175,119 +175,73 @@ B422  1    2     3    4    56   40   66   37   36    245
 Bpho  1    0     4    4    66   42   64   30   43    254
 ```
 
+## 5) Validated labelled tree and MSA files 
 
+Starting with the input files in [07_files_labelled_ABCDEFGHI](./07_files_labelled_ABCDEFGHI) we will now filter out trees with poor topologies according to a boostrap test (n=1000) performed with [IQ-TREE](http://www.iqtree.org). In order to do that we first need to reformat the input. We'll start by creating pruned FASTA files with all diploids and only one allopolyploid sequence for each aligned cluster, in folder [08_bootstrapping_check](./08_bootstrapping_check):
 
-############################################################# SECOND CHECKING ROUND OF LABELLED TREES #########################################################################
-
-
-Those steps create a huge amount of files. Steps, scripts and onelines are showed, but those files are not included here.
-
-See "08_bootstrapping_check"
-
-
-# Create FASTA files pruned with all diploids plus one allopolyploid sequences for each aligned cluster
-
-## Remove sequences with only gaps using trimAl
-
-Input placed in 07_files_labelled_ABCDEFGHI
-
-Remove lines with all gaps
+```
+# Remove sequences with only gaps using trimAl
 
 for FILE in *corrected_simplified.sort.fna; do
 echo $FILE;
 trimal/source/trimal -in $FILE -out $FILE.trimmed.fna -noallgaps;
 done
 
-## Extract multifasta using list of references for each species and label (allels)
+# Extract multifasta using list of references for each species and label (alleles)
+# Example for all labels (A, B, C, D, E, F, G, H and I) of B422 species. Repeat in each files and species
+# See file Bmex_A.list.txt
 
+for FILE in *.trimmed.fna; do cat Bmex_A.list.txt | \
+	awk '{gsub("_","\\_",$0);$0="(?s)^>"$0".*?(?=\\n(\\z|>))"}1' | pcregrep -oM -f - $FILE > $FILE.extract_Bmex_A.fna; done
 
-Example for all labels (A, B, C, D, E, F, G, H and I) of B422 species. Repeat in each files and species
-
-see file Bmex_A.list.txt
-
-for FILE in *.trimmed.fna; do cat Bmex_A.list.txt | awk '{gsub("_","\\_",$0);$0="(?s)^>"$0".*?(?=\\n(\\z|>))"}1' | pcregrep -oM -f - $FILE > $FILE.extract_Bmex_A.fna; done
-
-
-
-## Find and save FASTA files including allopoliploid sequences
-
-Example: codes of allopolyploids species: Bmex; Bret; Bboi; Bhyb; Brup; Bpho and B422
+# Find and save FASTA files including allopoliploid sequences
+# Example: codes of allopolyploids species: Bmex; Bret; Bboi; Bhyb; Brup; Bpho and B422
 
 grep -E 'Bmex|Bret|Bboi|Bhyb|Brup|Bpho|B422' *.fna | cut -d":" -f1 > list_files_extract_allopoly.txt
 
 
-## copy and save those files:
+# copy and save those files:
 
 ls | grep -f list_files_extract_allopoly.txt | xargs mv -t DIRECTORY
 
 
 # Create non-paremetric bootstrapping trees using IQ-TREE
-
-## Input corresponds to FASTA alinged files with diploid sequences plus polyploid sequences.
-
-See input example --> 99716_c37819_extract_Bmex_A.fna
+# Input corresponds to FASTA alinged files with diploid sequences plus polyploid sequences.
+# Example: 99716_c37819_extract_Bmex_A.fna
+# Output: 1000 bootstrapping trees for each fna file
 
 ls *.fna | parallel --gnu -j 50 iqtree-1.6.9-Linux/bin/iqtree -b 1000 -nt 1 -AICc -s {} :::
+```
 
-Output --> 1000 bootstrapping trees for each fna file 
+Now we are ready to re-label the bootstrapped trees in folder [iqtree_non_parametric_bootstrap_1000](././08_bootstrapping_check/iqtree_non_parametric_bootstrap_1000), producing relabelled files:
+```
+perl scripts/_bootstrap_label_stats.pl iqtree_non_parametric_bootstrap_1000
 
+# Example output: 98131_c38723_extract_Bmex_A.fna.boottrees.relabelled
+```
 
-# Run _bootstrap_label_stats.pl script to root, sort and re-label bootstrapping trees
-
-Input --> iqtree_non_parametric_bootstrap_1000 directory with .boottrees for IQTREE bootstrapping
-
-See exaple --> iqtree_non_parametric_bootstrap_1000 including two boottrees files (98131_c38723_extract_Bmex_A.fna.boottrees; 99182_c38366_extract_Bhyb_B.fna.boottrees)
-
-perl bootstrap_label_stats.pl iqtree_non_parametric_bootstrap_1000
-
-
-output --> directory with files relabelled (98131_c38723_extract_Bmex_A.fna.boottrees.relabelled; 99182_c38366_extract_Bhyb_B.fna.boottrees.relabelled)
-For each boottrees file splits trees (.ph), roots (.root.ph) and relabel (.label.ph) and print statistics in screen
-
-
-# Check diploid backbone for all boottrap trees rooted and relabel
-
+Now, as earlier, we should check the diploid backbone of all bootstrapped, relabelled and rooted trees:
+```
 for FILE in *.root.ph; do
-perl _check_diploids.pl $FILE Osat;
+perl scripts/_check_diploids.pl $FILE Osat;
 done &>> stats_diploid_skeleton_1000_boot.log
 
-Example:
+# print summaries of bootstrap topologies, with bootstrapped trees numbered from 1 to 1000
+awk 'c&&!--c;/# .\//{print $0; c=8}' stats_diploid_skeleton_1000_boot.log | \
+	cut -d" " -f1,2 | sed 's/# .\///g' | awk '{printf "%s%s",$0,NR%2?"\t":RS}' | \
+	sort -t/ -k1,1 -k2,2n > table_files_topologies_1000.tsv
 
-# File name
-
-# Osat  1       Osat
-# Hvul  2       Hvul
-# Bsta  3       Bsta
-# Bdis  4       Bdis
-# Barb  5       Barb
-# Bpin  6       Bpin
-# Bsyl  7       Bsyl
-Osat,Hvul,Bsta,Bdis,Barb,Bpin,Bsyl,
+# Example:
+# 100546_c28312.extract_B422_E.fna.boottrees.relabelled/1.root.ph    Osat,Hvul,Bsta,Bdis,Barb,Bpin,Bsyl,
 
 
-
-# Print match and 8th line (topology), keep first (file name) and second column; remove "# .\"; rows to column (files topologies) and sort by files and then by numbers of bootstrap files (from 1 to 1000):
-
-awk 'c&&!--c;/# .\//{print $0; c=8}' stats_diploid_skeleton_1000_boot.log | cut -d" " -f1,2 | sed 's/# .\///g' | awk '{printf "%s%s",$0,NR%2?"\t":RS}' | sort -t/ -k1,1 -k2,2n > table_files_topologies_1000.tsv
-
-Example:
-
-100546_c28312.extract_B422_E.fna.boottrees.relabelled/1.root.ph    Osat,Hvul,Bsta,Bdis,Barb,Bpin,Bsyl,
-
-
-# Find acepted topologies: Acepted topologies: 'Osat,Hvul,Bsta,Bdis,Barb,Bsyl,Bpin,'; 'Osat,Hvul,Bsta,Bdis,Barb,Bpin,Bsyl,'
+# Find acepted topologies, imposed by user
+# 'Osat,Hvul,Bsta,Bdis,Barb,Bsyl,Bpin,'; 'Osat,Hvul,Bsta,Bdis,Barb,Bpin,Bsyl,'
 
 sed -r 's/\/[0-9]+\.root.ph//g' table_files_topologies_1000.tsv | grep -e 'Osat,Hvul,Bsta,Bdis,Barb,Bsyl,Bpin,' -e 'Osat,Hvul,Bsta,Bdis,Barb,Bpin,Bsyl,' | uniq -c > STATS_acepted_topologies_1000_bootstrapping.txt
 
 
-Example:
-
-# trees	directory name	topology
-
-239 97589_c38733.extract_Bmex_B.fna.boottrees.relabelled     Osat,Hvul,Bsta,Bdis,Barb,Bpin,Bsyl,
-
-
-# To sum up topologies for the same files:
+# sum up topologies for the same files:
 
 awk '{a[$2]+=$1}END{for(i in a) print i,a[i]}' STATS_acepted_topologies_1000_bootstrapping.txt
 
@@ -297,9 +251,7 @@ awk '{a[$2]+=$1}END{for(i in a) print i,a[i]}' STATS_acepted_topologies_1000_boo
 cat table_files_topologies_1000.tsv | grep -e 'Osat,Hvul,Bsta,Bdis,Barb,Bsyl,Bpin,' -e 'Osat,Hvul,Bsta,Bdis,Barb,Bpin,Bsyl,' 
 
 
-
-
-# New trimal round to remove columns with all gaps after filtering steps
+# New trimAl job to remove columns with all gaps after filtering
 
 for FILE in *.fna; do
 echo $FILE;
@@ -308,15 +260,19 @@ done
 
 
 
-# Concatenate genes partitions
+# Concatenate genes partitions with help from https://github.com/vinuesa/get_phylomarkers
 
 ls *.trimmed.fna > list.txt
 
 get_phylomarkers/concat_alignments.pl list.txt > MSA.fna
+```
 
 
 
 # Remove underrepresented labels (our criteria < 12 labels or 10%)
+
+
+
 
 
 # Consensus labels --> from labels to alleles
