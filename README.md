@@ -175,9 +175,13 @@ B422  1    2     3    4    56   40   66   37   36    245
 Bpho  1    0     4    4    66   42   64   30   43    254
 ```
 
-## 5) Validated labelled tree and MSA files 
+## 5) Validated labelled trees and MSA files 
 
-Starting with the input files in [07_files_labelled_ABCDEFGHI](./07_files_labelled_ABCDEFGHI) we will now filter out trees with poor topologies according to a boostrap test (n=1000) performed with [IQ-TREE](http://www.iqtree.org). In order to do that we first need to reformat the input. We'll start by creating pruned FASTA files with all diploids and only one allopolyploid sequence for each aligned cluster, in folder [08_bootstrapping_check](./08_bootstrapping_check):
+Starting with the input files in [07_files_labelled_ABCDEFGHI](./07_files_labelled_ABCDEFGHI) we will now filter out trees with poor topologies according to a boostrap test (n=1000) performed with [IQ-TREE](http://www.iqtree.org). 
+
+In order to do that we first need to reformat the input. We'll do these operations in folder [08_bootstrapping_check](./08_bootstrapping_check), which contains some sample files. One of the steps involved a script from https://github.com/vinuesa/get_phylomarkers
+
+We'll start by creating pruned FASTA files with all diploids and only one allopolyploid sequence for each aligned cluster:
 
 ```
 # Remove sequences with only gaps using trimAl
@@ -245,11 +249,9 @@ sed -r 's/\/[0-9]+\.root.ph//g' table_files_topologies_1000.tsv | grep -e 'Osat,
 
 awk '{a[$2]+=$1}END{for(i in a) print i,a[i]}' STATS_acepted_topologies_1000_bootstrapping.txt
 
-
 # Keep names in each files with correct topology
 
 cat table_files_topologies_1000.tsv | grep -e 'Osat,Hvul,Bsta,Bdis,Barb,Bsyl,Bpin,' -e 'Osat,Hvul,Bsta,Bdis,Barb,Bpin,Bsyl,' 
-
 
 # New trimAl job to remove columns with all gaps after filtering
 
@@ -258,54 +260,36 @@ echo $FILE;
 trimal/source/trimal -in $FILE -out $FILE.trimmed.fna -noallgaps -keepseqs;
 done
 
-
-
-# Concatenate genes partitions with help from https://github.com/vinuesa/get_phylomarkers
+# Concatenate genes partitions
 
 ls *.trimmed.fna > list.txt
-
 get_phylomarkers/concat_alignments.pl list.txt > MSA.fna
 ```
 
+The next step in this section would be to remove underrepresented labels, which in our case we chose to be those present in less than 12 (10%) gene trees. 
 
 
-# Remove underrepresented labels (our criteria < 12 labels or 10%)
+## 6) Consensus labelled trees and MSA files
+
+In this last step the subgenome alleles that we had been using were converted to new consensus subgenomes labels (in capitals) based on patristic distances. This Excel file ([patristic_distances.xlsx](./09_consensus_labels/patristic_distances.xlsx)) was computed in [Geneious](https://www.geneious.com/) from the concatenated ML tree obtained in the previous step. 
+
+From the patristic matrix a Principal Component Analysis was carried out to compute consensus alleles as follows:
+```
+f+g+h+i -> consensus label H
+...
+...
+a+c     -> consensus label A
+```
 
 
+<!-- los E de unos y otros alopoliploides, los b y los d; los que están casi a la misma distancia en el eje 1 son los a-c y b-c, aunque en el 3D se observa que a-c son más próximos. pero aquí también se aplicó el criterio de las elipses de Antonio para unir a+c en A. este criterio es el de los rangos de frecuencia mayores, que yo preferiría se explicasen con valores constantes y sonantes. Eso nos lo tienes que decir Antonio. -->
 
-
-
-# Consensus labels --> from labels to alleles
-
-see 09_consensus_labels
-
-Criteria:
-
-Patristic distances (see Excel)
-
-subgenomic assignation (PREGUNTAR A ANTONIO)
-
-
-
-## Create consensus sequences for each species and alleles:
-
-Extract sequences to collapse:
-
-One liner example:
-
+Finally, sequences for each species and allele were first collapsed and then consensus computed with https://github.com/josephhughes/Sequence-manipulation/blob/master/Consensus.pl:
+```
 perl -lne 'if(/^(>.*)/){ $head=$1 } else { $fa{$head} .= $_ } END{ foreach $s (keys(%fa)){ print "$s\n$fa{$s}\n" if($s =~ /Bpho_F/ || $s =~ /Bpho_G/ || $s =~ /Bpho_H/|| $s =~ /Bpho_I/) }}' MSA.fasta > Bpho_F_G_H_I.fasta
 
-
-
-Collapse labels (use collapse script, multiple options)
-
-https://github.com/josephhughes/Sequence-manipulation/blob/master/Consensus.pl
-
-perl Consensus.pl -iupac -in Bpho_F_G_H_I.fasta -out Bpho_H_consensus.fasta
-
-
-
-Finally, cluster all consensus sequences and coduct downstream phylogenomics analyses
+perl Sequence-manipulation/Consensus.pl -iupac -in Bpho_F_G_H_I.fasta -out Bpho_H_consensus.fasta
+```
 
 
 
