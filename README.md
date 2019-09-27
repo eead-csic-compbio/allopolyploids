@@ -266,23 +266,23 @@ ls *.trimmed.fna > list.txt
 get_phylomarkers/concat_alignments.pl list.txt > MSA.fna
 ```
 
-The next step in this section would be to remove underrepresented labels, which in our case we chose to be those present in less than 12 (10%) gene trees. 
+The next step in this section would be to remove underrepresented labels, which in our case we chose to be those present in less than 12 (6%) gene trees. 
 
 
 ## 6) Consensus labelled trees and MSA files
 
-In this last step the subgenome alleles that we had been using were converted to new consensus subgenomes labels (in capitals) based on patristic distances. This Excel file ([patristic_distances.xlsx](./09_consensus_labels/patristic_distances.xlsx)) was computed in [Geneious](https://www.geneious.com/) from the concatenated ML tree obtained in the previous step. 
+In this last step the subgenome alleles that we had been using were converted to new consensus subgenomes labels (in capitals, as in the paper).
+This was guided by patristic distances (see Excel file ([patristic_distances.xlsx](./09_consensus_labels/patristic_distances.xlsx)) computed in [Geneious](https://www.geneious.com/) from the concatenated ML tree obtained in the previous step. 
 
-From the patristic matrix a Principal Component Analysis was carried out to compute consensus alleles as follows:
 ```
-f+g+h+i -> consensus label H
-...
-...
-a+c     -> consensus label A
+original   consensus label
+a+c             A
+b               B
+d               D
+e               E
+f+g+h+i         H
+
 ```
-
-
-<!-- los E de unos y otros alopoliploides, los b y los d; los que están casi a la misma distancia en el eje 1 son los a-c y b-c, aunque en el 3D se observa que a-c son más próximos. pero aquí también se aplicó el criterio de las elipses de Antonio para unir a+c en A. este criterio es el de los rangos de frecuencia mayores, que yo preferiría se explicasen con valores constantes y sonantes. Eso nos lo tienes que decir Antonio. -->
 
 Finally, sequences for each species and allele were first collapsed and then consensus computed with https://github.com/josephhughes/Sequence-manipulation/blob/master/Consensus.pl:
 ```
@@ -291,10 +291,9 @@ perl -lne 'if(/^(>.*)/){ $head=$1 } else { $fa{$head} .= $_ } END{ foreach $s (k
 perl Sequence-manipulation/Consensus.pl -iupac -in Bpho_F_G_H_I.fasta -out Bpho_H_consensus.fasta
 ```
 
+## Appendix
 
-
-
-
+The [BEAST](https://beast.community) configuration files for the cross-bracing analyses mentioned in the paper are in folder [scripts/beast](./scripts/beast)
 
 
 
