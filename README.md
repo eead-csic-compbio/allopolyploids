@@ -293,7 +293,7 @@ perl Sequence-manipulation/Consensus.pl -iupac -in Bpho_F_G_H_I.fasta -out Bpho_
 
 ## Appendix
 
-The [BEAST](https://beast.community) configuration files for the cross-bracing analyses mentioned in the paper are in folder [scripts/beast](./scripts/beast)
+The [BEAST](https://beast.community) configuration files prepared by Antonio Diaz for the cross-bracing analyses mentioned in the paper are in folder [scripts/beast](./scripts/beast)
 
 
 
