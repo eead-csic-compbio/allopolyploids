@@ -269,17 +269,27 @@ get_phylomarkers/concat_alignments.pl list.txt > MSA.fna
 The next step in this section would be to remove underrepresented labels, which in our case we chose to be those present in less than 12 (6%) gene trees. 
 
 
-## 6) Consensus labelled trees and MSA files
+## 6) Consensus subgenome labelled trees and MSA files
 
-In this last step the subgenome alleles that we had been using were converted to new consensus subgenomes labels (in capitals, as in the paper).
-This was guided by patristic distances (see Excel file ([patristic_distances.xlsx](./09_consensus_labels/patristic_distances.xlsx)) computed in [Geneious](https://www.geneious.com/) from the concatenated ML tree obtained in the previous step. 
+In this step the allopolyploid allele labels that we had been using (lower case) were simplified to consensus subgenomes labels (in capitals, as in the paper). This was guided by a four-way analysis, described in the paper, which included:
+
++ Patristic distances and their clustering in a Principal Component Analysis (see Excel file [patristic_distances.xlsx](./09_consensus_labels/patristic_distances.xlsx) produced by [Geneious](https://www.geneious.com/) from the concatenated ML tree obtained in the previous step. 
+
++ Allelle percentages in bootstrap trees (see Excel file [boostraps_label_percentages.xlsx](./09_consensus_labels/boostraps_label_percentages.xlsx)). 
+
++ Relative frequency of allele labels per species (up to four alleles).
+
++ The topology of the ML tree. 
+
+The final subgenomic labelling rules are:
 
 ```
-original   consensus label
+allele   consensus sungenome label
 a+c             A
 b               B
 d               D
 e               E
+e(Bret)         E_core
 f+g+h+i         H
 
 ```
