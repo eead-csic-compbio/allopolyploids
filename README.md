@@ -275,7 +275,7 @@ In this step the allopolyploid allele labels that we had been using (lower case)
 
 + Patristic distances and their clustering in a Principal Component Analysis (see Excel file [patristic_distances.xlsx](./09_consensus_labels/patristic_distances.xlsx) produced by [Geneious](https://www.geneious.com/) from the concatenated ML tree obtained in the previous step. 
 
-+ Allelle percentages in bootstrap trees (see Excel file [bootstrap_label_percentages.xlsx](./09_consensus_labels/boostraps_label_percentages.xlsx)). 
++ Allelle percentages in bootstrap trees (see Excel file [bootstrap_label_percentages.xlsx](./09_consensus_labels/bootstrap_label_percentages.xlsx)). 
 
 + Relative frequency of allele labels per species (up to four alleles).
 
