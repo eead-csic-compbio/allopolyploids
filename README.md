@@ -1,6 +1,6 @@
 # allopolyploids
 
-This pipeline was designed by Ruben Sancho, Pilar Catalan and Bruno Contreras Moreira for the selection of transcripts for phylogeny reconstruction of allopolyploid species. It uses what we call the **nearest diploid species node algorithm**. We tested it with diploid and polyploid species of the genus Brachypodium, for which we had data obtained in collaboration with David des Marais. The ideas and the code can be taylored for other clades as well.
+This pipeline was designed by Ruben Sancho, Antonio Diaz, Pilar Catalan and Bruno Contreras Moreira for the selection of transcripts for phylogeny reconstruction of allopolyploid species. It uses what we call the **nearest diploid species node algorithm**. We tested it with diploid and polyploid species of the genus Brachypodium, for which we had data obtained in collaboration with David des Marais. The ideas and the code can be taylored for other clades as well.
 
 
 ## 1) Core transcripts expressed in all Brachypodium species plus two outgroups: rice & barley
@@ -301,11 +301,9 @@ perl -lne 'if(/^(>.*)/){ $head=$1 } else { $fa{$head} .= $_ } END{ foreach $s (k
 perl Sequence-manipulation/Consensus.pl -iupac -in Bpho_F_G_H_I.fasta -out Bpho_H_consensus.fasta
 ```
 
-## Appendix
+## Data files of figures in the paper
 
-The [BEAST](https://beast.community) configuration files prepared by Antonio Diaz for the cross-bracing analyses mentioned in the paper are in folder [scripts/beast](./scripts/beast)
-
-The data files containing sequence alignments, trees and XML config for beast and cross-bracing analyses will be available after publication at [https://doi.org/10.5061/dryad.ncjsxksqw](https://doi.org/10.5061/dryad.ncjsxksqw). Note this is a large file (2.1Gb).
+The files containing sequence alignments, trees and XML config files for [BEAST](https://beast.community) and cross-bracing analyses will be available after publication at [https://doi.org/10.5061/dryad.ncjsxksqw](https://doi.org/10.5061/dryad.ncjsxksqw)
 
 
 
