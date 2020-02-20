@@ -5,9 +5,8 @@
 #
 # Diploid species must contain unique string hard-coded in @diploids
 # 
-# B Contreras-Moreira, R Sancho, EEAD-CSIC & EPS-UNIZAR 2018
-# Updated Sep2018 to make sure diploids are not sisters with the
-# exception of %can_be_sisters
+# B Contreras-Moreira, R Sancho, EEAD-CSIC & EPS-UNIZAR 2018-20
+# Updated Sep2018 to make sure diploids are not sisters with the exception of %can_be_sisters
 
 use strict;
 use Bio::TreeIO;
@@ -18,8 +17,9 @@ use Bio::Phylo::Forest::Tree;
 my @diploids = ('Bdis','Bsta','Barb','Bpin','Bsyl','Hvul','Osat' ); # _Sbic
 
 my %can_be_sisters = ( 'Bpin' => 'Bsyl', 'Bsyl' => 'Bpin' );
- 
-my $PRUNEXE = '~contrera/soft/newick_utils/src/nw_prune';
+
+# get it from http://cegg.unige.ch/newick_utils
+my $PRUNEXE = '/path/to/newick_utils/src/nw_prune';
 
 my $NODEORDER = 0; # 1:increasing, 0:decreasing
 my ($outfound,$outnode,$sorted_newick,$taxon,$node,$d,$header) = (0);
@@ -28,6 +28,7 @@ my ($bases,%length,%longest,%longest_header);
 
 die "# usage: $0 <tree.newick> <outgroup>\n" if(!$ARGV[1]);
 
+# name of output pruned file
 my $pruned_tree_file = $ARGV[0].'.pruned';
 
 my $outgroup_string = $ARGV[1];
@@ -106,9 +107,9 @@ $previous_node = undef;
 $previous_taxon = '';
 LOOP: for $node ( $sorted_pruned_tree->get_nodes() ) {
 
-	# debugging to make we understand internal ids and node ancestors
-	#$taxon = 'NA';
-	#foreach $d ( 0 .. $#diploids) {
+# debugging: make sure we understand internal ids and node ancestors
+#$taxon = 'NA';
+#foreach $d ( 0 .. $#diploids) {
 #		if($node->id() ne '' && $node->id() =~ m/_($diploids[$d])/) {
 #         $taxon = $1;
 #			last;
@@ -136,18 +137,13 @@ LOOP: for $node ( $sorted_pruned_tree->get_nodes() ) {
 				my @ancestors_previous_taxon = get_all_ancestors( $previous_node );
 				my @ancestors_taxon = get_all_ancestors( $node );
 
-				my $MRCA = get_MRCA( \@ancestors_previous_taxon, \@ancestors_taxon );
-
+				#my $MRCA = get_MRCA( \@ancestors_previous_taxon, \@ancestors_taxon );
 				#print $previous_node->ancestor()->internal_id()." ".$node->ancestor()->internal_id()." $MRCA\n"; # debug
 
 				if($previous_node->ancestor()->internal_id() eq $node->ancestor()->internal_id() ){
 					# nodes share immediate ancestor
 					$summary .= "$taxon*,";				
 				}
-				#elsif(nodes_are_sister_clades(\@ancestors_previous_taxon, \@ancestors_taxon, $MRCA)) {
-				#	# both nodes hace MRCA descendants which are internal nodes
-				#	$summary .= "$taxon+,";
-				#}
 				else {
 					$summary .= "$taxon,";
 				}
@@ -210,42 +206,3 @@ sub get_MRCA
 
    return $MRCA;
 }
-
-# not used, does not work yet
-# checks whether two nodes are in sister clades
-# returns boolean
-sub nodes_are_sister_clades
-{
-	my ($ref_ancestorsA, $ref_ancestorsB, $MRCA) = @_;
-	my ($indexA,$indexB) = (0,0);
-	my ($nodeA,$nodeB,$descendentA,$descendentB);
-
-	# find MRCA in ancestors of A and get the immediate descendant
-	foreach $nodeA (@$ref_ancestorsA)
-   {
-		$indexA++;
-		last if($nodeA eq $MRCA);
-	}
-	$descendentA = $ref_ancestorsA->[++$indexA];
-	
-	# now for B
-	foreach $nodeB (@$ref_ancestorsB)
-   {
-		$indexB++;
-      last if($nodeB eq $MRCA);
-   }
-   $descendentB = $ref_ancestorsB->[++$indexB];	
-
-	print join(',',@$ref_ancestorsA)."\n";
-	print join(',',@$ref_ancestorsB)."\n";
-	printf("# (%d) %d < %d || %d < %d\n",$MRCA,$indexA,scalar(@$ref_ancestorsA),$indexB,scalar(@$ref_ancestorsB));
-
-	if($indexA < scalar(@$ref_ancestorsA) || $indexB < scalar(@$ref_ancestorsB))
-	{
-		#printf("# (%d) %d < %d || %d < %d\n",$MRCA,$indexA,scalar(@$ref_ancestorsA),$indexB,scalar(@$ref_ancestorsB)); # debug
-
-		return 1; # they are in sister clades
-	}
-	else{ return 0 }
-}
-
