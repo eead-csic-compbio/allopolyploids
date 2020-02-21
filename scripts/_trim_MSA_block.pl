@@ -14,7 +14,7 @@
 #
 # Note that outgroups are not used to compute diploid block.
 #
-# B Contreras-Moreira, R Sancho, EEAD-CSIC & EPS-UNIZAR 2018
+# B Contreras-Moreira, R Sancho, EEAD-CSIC & EPS-UNIZAR 2018-20
 
 die "# usage: $0 <input MSA file> <output block MSA file>" if(!$ARGV[1]);
 
@@ -71,10 +71,17 @@ my %diploids4width = (
    '_Bsyl'=>0.2
 );
 
+my $diploid_width = 0;
+foreach my $dipl (keys(%diploids4width)){
+   $diploid_width += $diploids4width{ $dipl };
+}
+
+
 ################################################################################
 
 print "# params: MINBLOCKLENGTH=$MINBLOCKLENGTH MAXGAPSPERBLOCK=$MAXGAPSPERBLOCK\n";
 print "# params: MINBLOCKOVERLAP=$MINBLOCKOVERLAP LONGTRINITYISOFPOLYPLOIDS=$LONGTRINITYISOFPOLYPLOIDS\n";
+print "# diploid_width=$diploid_width\n";
 print "# diploids: ".join(',',@diploids)."\n";
 print "# outgroups: ".join(',',@outgroups)."\n";
 print "# polyploids: ".join(',',@polyploids)."\n\n";
@@ -167,7 +174,7 @@ foreach $taxon (@diploids)
 # compute block length
 $diploid_block_length = $diploid3prime - $diploid5prime + 1;
 
-if($diploid_block_ok <= 4)
+if($diploid_block_ok < $diploid_width)
 {
    print "# MSA skipped as not all required diploids are aligned: $diploid_block_ok\n";
    exit;
