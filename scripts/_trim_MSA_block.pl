@@ -102,35 +102,34 @@ my $block_MSA_file = $ARGV[1];
 open(MSA,"<",$input_MSA_file) || die "# ERROR: cannot open input file $input_MSA_file, exit\n";
 while(my $line = <MSA>)
 {
+   #if($line =~ /^>(.*?)(_[^_\n]+)$/) # another option for headers such as >accesion_Gspecies
    if($line =~ /^>(.*?)(\[\S+?\])$/)
    {
-		$header = $1;
+      $header = $1;
       $taxon = $2;
-		$short_taxon = '';
+      $short_taxon = '';
 		
-		if(!$to_be_removed{ $taxon })
-		{ 
-			$MSAwidth = 0;
+      if(!$to_be_removed{ $taxon }){ 
+         $MSAwidth = 0;
 
-			#shorten taxon string using user-defined %long2short
-			$short_taxon = $long2short{$taxon} || "_$taxon";
-		 	$header .= $short_taxon;
-			$header2taxon{ $header } = $short_taxon;
-		}
+         #shorten taxon string using user-defined %long2short
+         $short_taxon = $long2short{$taxon} || "_$taxon";
+         $header .= $short_taxon;
+         $header2taxon{ $header } = $short_taxon;
+      }
    }
    else
-	{	
-		if($short_taxon ne '')
-		{	
-			chomp($line);
-			$FASTA{ $short_taxon }{ $header } .= $line;
+   {	
+      if($short_taxon ne ''){	
+         chomp($line);
+         $FASTA{ $short_taxon }{ $header } .= $line;
 			
-			# record sequence length
+         # record sequence length
          $bases = ($line =~ tr/[ACGTN]//);
-			$length{ $header } += $bases;
-			$MSAwidth += length($line);
-		}
-	}
+         $length{ $header } += $bases;
+         $MSAwidth += length($line);
+      }
+   }
 }
 close(MSA);
 
