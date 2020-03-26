@@ -500,10 +500,10 @@ foreach $taxon (@polyconfig::polyploids)
 			$desc_is_sister = 1;
 		}
 	
-		print "des_dip_taxon $desc_dip_taxon ($desc_is_sister)\n" if($verbose);
-		
 		$lineage_code = get_label_from_rules( $anc_dip_taxon, $desc_dip_taxon, 
 															$anc_is_sister, $desc_is_sister);
+
+		print "des_dip_taxon $desc_dip_taxon ($desc_is_sister) -> $lineage_code\n" if($verbose);
 
 		# collect some label stats
 		if($lineage_code ne '-')
