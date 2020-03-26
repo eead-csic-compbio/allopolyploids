@@ -88,83 +88,45 @@ sub get_label_from_rules {
 
 	# start applying rules
 	
-	## sister rules
-   if($anc_dip_taxon eq 'Aspe' && $anc_is_sister == 1){$lineage_code = 'C'}
-   if($anc_dip_taxon eq 'Asha' && $anc_is_sister == 1){$lineage_code = 'E'}
-   if($anc_dip_taxon eq 'Atau' && $anc_is_sister == 1){$lineage_code = 'F'}
-   if($anc_dip_taxon eq 'Tmon' && $anc_is_sister == 1){$lineage_code = 'H'}
-   if($anc_dip_taxon eq 'Tura' && $anc_is_sister == 1){$lineage_code = 'I'}
+	## ancestor is sister or descendant is empty, 
+	## only ancestor diploid is looked up
+	if($anc_is_sister == 1 || $desc_dip_taxon eq ''){
+		if($anc_dip_taxon eq 'Aspe'){ $lineage_code = 'C' }
+		elsif($anc_dip_taxon eq 'Asha'){ $lineage_code = 'E' }
+		elsif($anc_dip_taxon eq 'Atau'){ $lineage_code = 'F' }
+		elsif($anc_dip_taxon eq 'Tmon'){ $lineage_code = 'H' }
+		elsif($anc_dip_taxon eq 'Tura'){ $lineage_code = 'I' }
+	}
+	else { ## both ancestor/descendant diploids/clades are considered
 
-
-	## ancestor/descendant diploids/clades rules
-   if($anc_dip_taxon eq 'Hvul' && $desc_dip_taxon eq 'MRCAAeTr'){ $lineage_code = 'A' }
-
-   if($anc_dip_taxon eq 'MRCAAeTr' && $desc_dip_taxon eq 'MRCAAe'){ $lineage_code = 'B' }
-
-   if($anc_dip_taxon eq 'MRCAAeTr' && $desc_dip_taxon eq 'MRCATr'){ $lineage_code = 'G' }
-
-   if($anc_dip_taxon eq 'Aspe'){ # or $anc_dip_taxon eq 'MRCAAe'
-		if($desc_dip_taxon eq 'Asha' || $desc_dip_taxon eq 'Atau'){ $lineage_code = 'D' }
+		if($anc_dip_taxon eq 'Hvul' && $desc_dip_taxon eq 'MRCAAeTr'){ 
+			$lineage_code = 'A' 
+		}
+		elsif($anc_dip_taxon eq 'MRCAAeTr' && $desc_dip_taxon eq 'MRCAAe'){ 
+			$lineage_code = 'B' 
+		}
+		elsif($anc_dip_taxon eq 'MRCAAeTr' && $desc_dip_taxon eq 'MRCATr'){ 
+			$lineage_code = 'G' 
+		}
+		elsif($anc_dip_taxon eq 'MRCAAe' ||$anc_dip_taxon eq 'Aspe'){
+			if($desc_dip_taxon eq 'Asha' || $desc_dip_taxon eq 'Atau'){ 
+				$lineage_code = 'D' 
+			}
+		}
+		elsif($anc_dip_taxon eq 'Asha' && $desc_dip_taxon eq 'Atau'){ 
+			$lineage_code = 'E' 
+		}
+		elsif($anc_dip_taxon eq 'Atau' && $desc_dip_taxon eq 'Asha'){ 
+			$lineage_code = 'F' 
+		}
+		elsif($anc_dip_taxon eq 'Tmon' && $desc_dip_taxon eq 'Tura'){ 
+			$lineage_code = 'H' 
+		}
+		elsif($anc_dip_taxon eq 'Tura' && $desc_dip_taxon eq 'Tmon'){ 
+			$lineage_code = 'I' 
 		}
 
-   if($anc_dip_taxon eq 'Asha'){
-		if($desc_dip_taxon eq 'Atau'){ $lineage_code = 'E' }
-		#elsif
-      }
-
-
-
-
-
-
-
-
-
-
-
-
-	if($anc_dip_taxon eq 'Hvul'){
-		if($desc_dip_taxon eq 'Aspe'){ $lineage_code = 'B' }
-			elsif($desc_dip_taxon eq 'Tura' || $desc_dip_taxon eq 'Tmon'){ $lineage_code = 'G' }
-         else{ $lineage_code = 'A' }
-   }
-
-
-      elsif($anc_dip_taxon eq 'Aspe'){
-         if($desc_dip_taxon eq 'Asha' || $desc_dip_taxon eq 'Atau'){ $lineage_code = 'D' }
-         elsif($desc_dip_taxon eq 'Tura' || $desc_dip_taxon eq 'Tmon'){ $lineage_code = 'G' }
-         elsif($desc_dip_taxon eq 'Aspe' && $desc_is_sister == 1){ $lineage_code = 'C' }
-			else{ $lineage_code = 'C' }
-
-      }
-
-		elsif($anc_dip_taxon eq 'Asha'){
-         if($desc_dip_taxon eq 'Tura' || $desc_dip_taxon eq 'Tmon'){ $lineage_code = 'G' }
-         elsif($desc_dip_taxon eq 'Asha' && $desc_is_sister == 1){ $lineage_code = 'E' }
-         elsif($desc_dip_taxon eq 'Atau'){ $lineage_code = 'F' }
-         else{ $lineage_code = 'E' }
-
-      }
-
-		elsif($anc_dip_taxon eq 'Atau'){
-         if($desc_dip_taxon eq 'Tura' || $desc_dip_taxon eq 'Tmon'){ $lineage_code = 'G' }
-         elsif($desc_dip_taxon eq 'Atau' && $desc_is_sister == 1){ $lineage_code = 'F' }
-         elsif($desc_dip_taxon eq 'Asha'){ $lineage_code = 'E' }
-         else{ $lineage_code = 'F' }
-      }
-
-      elsif($anc_dip_taxon eq 'Tmon'){
-         if($desc_dip_taxon eq 'Tura'){ $lineage_code = 'I' }
-			elsif($desc_dip_taxon eq 'Tmon' && $desc_is_sister == 1){ $lineage_code = 'H' }
-			else{ $lineage_code = 'H' }
-      }
-
-		elsif($anc_dip_taxon eq 'Tura'){
-         if($desc_dip_taxon eq 'Tmon'){ $lineage_code = 'H' }
-			elsif($desc_dip_taxon eq 'Tura' && $desc_is_sister == 1){ $lineage_code = 'I' }
-         elsif($desc_dip_taxon eq 'Aspe'){ $lineage_code = 'B' }
-			else{ $lineage_code = 'I' }
-		}
+	}
 
 	return $lineage_code;
 }
