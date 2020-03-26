@@ -1,22 +1,27 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 # Re-roots an input Newick tree with a user-defined outgroup and 
-# prints the resulting tree in ascending or descending node order.
+# prints the resulting sorted tree.
 # Based on https://github.com/phac-nml/snvphyl-tools/blob/master/rearrange_snv_matrix.pl
 #
-# B Contreras-Moreira, R Sancho, EEAD-CSIC & EPS-UNIZAR 2018
-
+# B Contreras-Moreira, R Sancho, EEAD-CSIC & EPS-UNIZAR 2018-20
 
 use strict;
+use warnings;
+use FindBin '$Bin';
+use lib "$Bin";
+use polyconfig;
+
+# external dependencies, need to be installed
 use Bio::TreeIO;
 use Bio::Phylo::IO;
 use Bio::Phylo::Forest::Tree;
  
-my $OUTGROUPSTRING = 'Osat'; # change as needed _Sbic
-my $NODEORDER = 0; # 1:increasing, 0:decreasing
 my ($outfound,$outnode,$sorted_newick) = (0);
 
-die "# usage: $0 <tree.newick>\n" if(!$ARGV[0]);
+die "# usage: $0 <tree.newick> <outgroup>\n" if(!$ARGV[1]);
+my $outgroup_string = $ARGV[1];
+
 
 # read input tree
 my $input = new Bio::TreeIO(-file=>$ARGV[0],-format=>'newick');
@@ -24,14 +29,14 @@ my $intree = $input->next_tree();
 
 # find outgroup taxon
 for my $node ( $intree->get_nodes() ) { 
-  if(defined($node->id()) && $node->id() =~ m/$OUTGROUPSTRING/) {
+  if(defined($node->id()) && $node->id() =~ m/$outgroup_string/) {
     $outnode = $node; 
     $outfound = 1;
     last;
   }
 }
 if($outfound == 0) {
-  die "# cannot find outgroup $OUTGROUPSTRING in input tree $ARGV[0]\n";
+  die "# cannot find outgroup $outgroup_string in input tree $ARGV[0]\n";
 }
 
 # root in outgroup and sort in increasing order
@@ -43,7 +48,7 @@ my $unsorted_tree = Bio::Phylo::IO->parse(
   '-format' => 'newick'
 )->first();
 
-$unsorted_tree->ladderize($NODEORDER);
+$unsorted_tree->ladderize($polyconfig::NODEORDER);
 
 $sorted_newick = $unsorted_tree->to_newick();
 $sorted_newick =~ s/'//g;
