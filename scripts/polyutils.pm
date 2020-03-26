@@ -1,4 +1,4 @@
-package polyconfig;
+package polyutils;
 
 # B Contreras-Moreira, R Sancho, EEAD-CSIC & EPS-UNIZAR 2018-20
 
