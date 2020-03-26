@@ -19,13 +19,14 @@ use Bio::TreeIO;
 use Bio::Phylo::IO;
 use Bio::Phylo::Forest::Tree;
 
-# user-defined regexes to match diploid species
-# this names appear appended at end of node names separated by '_'
-#my @diploids = ('Tura','Tmon','Asha','Atau','Aspe','Bdis','Hvul','Osat' );
-#my %can_be_sisters = ( 'Tura' => 'Tmon', 'Tmon' => 'Tura', 'Asha' => 'Atau', 'Atau' => 'Asha' );
-
 # external dependency, take it from http://cegg.unige.ch/newick_utils 
-my $PRUNEXE = '~contrera/soft/newick_utils/src/nw_prune';
+my $PRUNEXE = 'nw_prune';
+
+# test it
+my $test_output = `$PRUNEXE 2>&1`;
+if(!$test_output ||$test_output !~ /Usage/){
+	die "# ERROR: cannot find $PRUNEXE, please install it and set correct path in \$PRUNEXE\n";
+}
 
 ######################################################################
 
