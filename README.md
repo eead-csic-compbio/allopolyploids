@@ -5,7 +5,7 @@ This pipeline was designed by Ruben Sancho, Antonio Diaz, Pilar Catalan and Brun
 
 ## 1) Core transcripts expressed in all Brachypodium species plus two outgroups: rice & barley
 
-This first step requires https://github.com/eead-csic-compbio/get_homologues and the set of transcripts in folder [genome_transcripts](./genome_transcripts), most of them assembled de novo with https://github.com/trinityrnaseq/trinityrnaseq
+This first step requires https://github.com/eead-csic-compbio/get_homologues and the set of transcripts in folder [genome_transcripts](./genome_transcripts), most of them assembled de novo with https://github.com/trinityrnaseq/trinityrnaseq . With the following command we request clusters with sequence identity >= 80% and 75% coverage of the shortest sequence:
 
 ```
 get_homologues/get_homologues-est.pl -d genome_transcripts/ -m cluster -I \
