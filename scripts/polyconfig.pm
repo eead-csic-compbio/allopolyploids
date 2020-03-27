@@ -42,9 +42,9 @@ $sister_clades{'MRCAAeTr'}{'MRCATr'} = ['Tura','Tmon'];        # clade 2
 
 # Default values for paremeters controlling how aligned blocks of sequences are
 # produced in script _trim_MSA_block.pl
-my $MINBLOCKLENGTH = 200;
-my $MAXGAPSPERBLOCK = 200; # tolerated gaps for diploids in block
-my $MINBLOCKOVERLAP = 0.50; # fraction of diploid block covered by outgroups & polyploids
+our $MINBLOCKLENGTH = 200;
+our $MAXGAPSPERBLOCK = 200; # tolerated gaps for diploids in block
+our $MINBLOCKOVERLAP = 0.50; # fraction of diploid block covered by outgroups & polyploids
 
 # Optional user-defined contribution of diploid species to block width calculations
 # in script _trim_MSA_block.pl (outgroup species are not used)
