@@ -9,7 +9,7 @@ our @ISA = qw( Exporter );
 
 our @EXPORT = qw(
 	get_label_from_rules
-	@diploids @polyploids %sister_clades @CODES $NODEORDER
+	@diploids @polyploids %outgroups %sister_clades @CODES $NODEORDER
 	$MINBLOCKLENGTH $MAXGAPSPERBLOCK $MINBLOCKOVERLAP
 );
 
@@ -17,8 +17,12 @@ our @EXPORT = qw(
 # See %sister_clades below for how to define sister species.
 our @diploids = qw( Osat Hvul Bdis Tura Tmon Asha Atau Aspe ); 
 
-# note these are diploids as well
-my %outgroups = qw( Osat Hvul Bdis );
+# note these are diploids as well; hash instead of list
+my %outgroups = ( 
+'Osat',1, 
+'Hvul',1,
+'Bdis',1 
+);
 
 # Abbreviated names of polyploid species as found in FASTA and tree files.
 our @polyploids = ('Taes', 'Ttur');
