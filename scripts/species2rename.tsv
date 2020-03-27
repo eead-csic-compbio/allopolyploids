@@ -1,4 +1,5 @@
-#[original taxon names]	4-letterAbbrev
+#[original taxon names]	Abbrev
+# Abbrev must match names in @polyconfig::diploids & ::polyploids
 [Bdistachyon_314_v3.1]	Bdis
 [Osativa_323_v7.0.transcript]	Osat
 [Hvulgare_IBSC2016.HQ.cds]	Hvul
