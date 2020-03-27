@@ -10,6 +10,7 @@ our @ISA = qw( Exporter );
 our @EXPORT = qw(
 	get_label_from_rules
 	@diploids @polyploids %sister_clades @CODES $NODEORDER
+	$MINBLOCKLENGTH $MAXGAPSPERBLOCK $MINBLOCKOVERLAP
 );
 
 # Abbreviated names of diploid species as found in FASTA and tree files.
