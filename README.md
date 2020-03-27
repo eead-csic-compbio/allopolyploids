@@ -48,6 +48,12 @@ perl -p -i -e 's/>(.+?) .+/>$1/g; s/:\d+:\d+:[+-]//g' $FILE;
 done
 ```
 
+The simplified FASTA headers after this operation will look like this one:
+```
+>Bradi1g12460.3[Bdistachyon_314_v3.1]
+```
+The goal was to leave the species identifier as the last bit, in this case within [brackets]. You might need to follow a sligthly different approach with your own data.
+
 We now take these alignments of nucleotide sequences of both diploid and polyploid species and produce trimmed FASTA files suitable for phylogenetic tree inference. The goal is to define a solid diploid backbone, which should be covered by outgroup sequences as well, and then use it to filter out polyploid sequences/alleles with diploid block overlap < $MINBLOCKOVERLAP. Therefore, some sequences and species might be removed from the initial input. These parameters are set in [scripts/_trim_MSA_block.pl](./scripts/_trim_MSA_block.pl), which also shortens the species names:
 ```
 my $MINBLOCKLENGTH = 100;
