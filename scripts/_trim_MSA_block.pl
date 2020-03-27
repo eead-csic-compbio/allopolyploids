@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl 
 
 # This script takes a FASTA multiple alignment of [nucleotide] sequences of
 # diploid and polyploid species and produces a trimmed MSA suitable for 
@@ -6,9 +6,10 @@
 #
 # The goal is to define a solid diploid backbone, which should be covered by
 # outgroup sequences as well, and then use it to filter out polyploid 
-# sequences with diploid block overlap < $MINBLOCKOVERLAP
+# sequences with diploid block overlap < $min_block_overlap
 #
-# Edit variables below to define diploid, outgroup diploid and polyploid species.
+# Uses diploid, outgroup and polyploid species defined in polyconfig.pm
+# Also takes default block values, such as $min_block_overlap, from polyconfig.pm
 #
 # Only the longest sequence is taken for diploid species. 
 #
@@ -16,140 +17,163 @@
 #
 # B Contreras-Moreira, R Sancho, EEAD-CSIC & EPS-UNIZAR 2018-20
 
-die "# usage: $0 <input MSA file> <output block MSA file>" if(!$ARGV[1]);
+use warnings;
+use Getopt::Std;
+use FindBin '$Bin';
+use lib "$Bin";
+use polyconfig;
 
-########################### user-defined variables ######################
+my $min_block_length = $polyconfig::MINBLOCKLENGTH;
+my $max_gaps_block   = $polyconfig::MAXGAPSPERBLOCK;
+my $min_block_overlap= $polyconfig::MINBLOCKOVERLAP; 
+my ($input_MSA_file,$block_MSA_file,$verbose,%opts) = ('','',0);
+my ($remove_short_polyploids,$rename_file,$regex) = ('','','');
 
-my $VERBOSE = 0;
+getopts('hi:o:O:m:M:s:R:t:v', \%opts);
 
-# min length of diploid aligned block
-my $MINBLOCKLENGTH = 100;
-my $MAXGAPSPERBLOCK = 100; # tolerated gaps for diploids in block
-my $MINBLOCKOVERLAP = 0.50; # fraction of diploid block covered by outgroups and polyploid seqs
-my $LONGTRINITYISOFPOLYPLOIDS = 1; # set to 1 if you wish that short trinity isoforms of the same polyploid sp 
-                                   # are removed. Isoforms are identified with regex $ISOFORMREGEX
-my $ISOFORMREGEX = 'c\d+_g\d+_i';
+if(($opts{'h'})||(scalar(keys(%opts))==0))
+{
+	print "\nusage: $0 [options]\n\n";
+	print "-h this message\n";
+	print "-i input FASTA file with aligned DNA sequences\n";
+	print "-o output FASTA file with aligned block of sequences\n";   
+	print "-v verbose output, useful for debugging              (optional)\n";
+	print "-m min diploid block length                          ".
+				"(optional, default:$min_block_length)\n";      
+	print "-M max total gaps in block                           ".
+				"(optional, default:$max_gaps_block)\n";
+	print "-O fraction of block covered by outgroup/polyploids  ".
+				"(optional, default:$min_block_overlap)\n";
+	print "-R remove short polyploid isoforms using regex       ".
+				"(optional, example: -R 'c\\d+_g\\d+_i')\n";
+	print "-t TSV file with pairs long species name, abbrev     ".
+				"(optional, example line: Oryza sativa\\tOsat)\n";
+	exit(0);
+} 
 
-# sequences to be removed
-my %to_be_removed = qw ( [syl_Cor_80_75] );
+if(defined($opts{'i'}) && -s $opts{'i'}){ 
+	$input_MSA_file = $opts{'i'}; 
+}
+else{ die "# EXIT : need a valid input file\n" }
 
-# user-defined hash of taxon names to be shortened
-my %long2short = qw(
-[Bdistachyon_314_v3.1] _Bdis
-[Osativa_323_v7.0.transcript] _Osat
-[Hvulgare_IBSC2016.HQ.cds] _Hvul
-[arb_80_75] _Barb
-[boi_80_75] _Bboi
-[hyb_80_75] _Bhyb
-[mex_80_75] _Bmex
-[pho_80_75] _Bpho
-[B422_80_75] _B422
-[pin_80_75] _Bpin
-[ret_80_75] _Bret
-[rup_80_75] _Brup
-[sta_80_75] _Bsta
-[syl_Esp_80_75] _Bsyl
-);
+if(defined($opts{'o'})){
+   $block_MSA_file = $opts{'o'};
+}
+else{ die "# EXIT : need a valid output file\n" }
 
-# short names of species used to define diploid block (see %long2short below)
-# 1 per taxon will be selected for optimizing diploid block 
-my @diploids = qw( _Bsta _Bdis _Barb _Bpin _Bsyl ); 
+if(defined($opts{'m'})){ $min_block_length = $opts{'m'} }
 
-# diploid outgroups: best block-overlapping sequence will be conserved
-my @outgroups = qw( _Osat _Hvul );
+if(defined($opts{'M'})){ $max_gaps_block = $opts{'M'} }
 
-# polyploid species, only sequences ovarlapping the block will be conserved  
-my @polyploids = qw( _Bhyb _Bboi _Bret _Bmex _Brup _Bpho _B422 );
-
-# user-defined contribution of diploid species to block width calculations
-# # arbitrary metric; in this case only one of Bpin or Bsyl is required
-my %diploids4width = (
-   '_Bsta'=>1,
-   '_Bdis'=>1,
-   '_Barb'=>1,
-   '_Bpin'=>1,
-   '_Bsyl'=>0.2
-);
-
-my $diploid_width = 0;
-foreach my $dipl (keys(%diploids4width)){
-   $diploid_width += $diploids4width{ $dipl };
+if(defined($opts{'R'})){ 
+	$remove_short_polyploids = 1;
+	$regex = $opts{'R'};
 }
 
+if(defined($opts{'t'}) && -s $opts{'t'}){ $rename_file = $opts{'t'} }
 
-################################################################################
+if(defined($opts{'v'})){ $verbose = 1 }
 
-print "# params: MINBLOCKLENGTH=$MINBLOCKLENGTH MAXGAPSPERBLOCK=$MAXGAPSPERBLOCK\n";
-print "# params: MINBLOCKOVERLAP=$MINBLOCKOVERLAP LONGTRINITYISOFPOLYPLOIDS=$LONGTRINITYISOFPOLYPLOIDS\n";
-print "# diploid_width=$diploid_width\n";
-print "# diploids: ".join(',',@diploids)."\n";
-print "# outgroups: ".join(',',@outgroups)."\n";
-print "# polyploids: ".join(',',@polyploids)."\n\n";
+# print parsed arguments
+print "# $0 -i $input_MSA_file -o $block_MSA_file -m $min_block_length ".
+			"-M $max_gaps_block -O $min_block_overlap -R $remove_short_polyploids ".
+			"-t $rename_file -v $verbose\n\n";
+
+print "# diploids: ".join(',',@polyconfig::diploids)."\n";
+print "# outgroups: ".join(',',(keys(%polyconfig::outgroups)))."\n";
+print "# polyploids: ".join(',',@polyconfig::polyploids)."\n\n";
 
 ################################################################################
 
 my $MSAwidth = 0;
 my $total_seqs_in_block = 0;
 my $blockMSA = '';
-my (%FASTA,%length,%inblock,%gaps,%header2taxon,%isoform);
+my (%FASTA,%length,%inblock,%gaps,%header2taxon,%isoform,%long2short);
 my ($ngaps,$bases,$header,$seq,$previous_seq,$taxon,$short_taxon);
 my ($coord,$coord3,$coord5,$overlap,$is_redundant);
+my %to_be_removed = (); #species names to be removed, used while debugging only
 
-my $input_MSA_file = $ARGV[0];
-my $block_MSA_file = $ARGV[1];
+# read TSV file if required
+if($rename_file){
+	open(TSV,"<",$rename_file) || die "# ERROR: cannot read $rename_file\n";
+	while(<TSV>){
+		next if(/^#/);
+		chomp;
+		my @data = split(/\t/,$_);
+		if($data[1]){
+			$long2short{ $data[0] } = $data[1];
+			print "# $data[0] -> $data[1]\n" if($verbose);
+		}
+	}
+	close(TSV); 
+	printf("# read %d pairs from file %s\n\n",scalar(keys(%long2short)),$rename_file);
+}
 
-## Simplify headers and exclude sequences to be removed 
-open(MSA,"<",$input_MSA_file) || die "# ERROR: cannot open input file $input_MSA_file, exit\n";
+# count how many diploids there are, excluding outgroups
+# these should be included in block
+my $diploids_minus_outgroups = 0;
+foreach $taxon (@polyconfig::diploids){
+	next if(defined($polyconfig::outgroups{$taxon}));
+   $diploids_minus_outgroups++;
+}
+
+
+# Simplify headers and exclude sequences to be removed 
+open(MSA,"<",$input_MSA_file) || 
+	die "# ERROR: cannot open input file $input_MSA_file, exit\n";
 while(my $line = <MSA>)
 {
-   #if($line =~ /^>(.*?)(_[^_\n]+)$/) # another option for headers such as >accesion_Gspecies
-   if($line =~ /^>(.*?)(\[\S+?\])$/)
+	# 1st regex=get_homologes 2nd regex=abbreviated sp names in place
+	# note this regex might need to be edited with your own data
+   if($line =~ /^>(.*?)(\[\S+\])$/ || $line =~ /^>(.*?)_([^_\n]+)$/)
    {
-      $header = $1;
-      $taxon = $2;
-      $short_taxon = '';
-		
-      if(!$to_be_removed{ $taxon }){ 
-         $MSAwidth = 0;
+		$header = $1;
+		$taxon = $2;
+			
+		if(!$to_be_removed{ $taxon })
+		{ 
+			$MSAwidth = 0;
 
-         #shorten taxon string using user-defined %long2short
-         $short_taxon = $long2short{$taxon} || "_$taxon";
-         $header .= $short_taxon;
-         $header2taxon{ $header } = $short_taxon;
-      }
+			# take short taxon from TSV file if available
+			$short_taxon = $long2short{$taxon} || $taxon;
+
+			$header .= "_$short_taxon"; 
+			$header2taxon{ $header } = $short_taxon; 
+		}
    }
    else
-   {	
-      if($short_taxon ne ''){	
-         chomp($line);
-         $FASTA{ $short_taxon }{ $header } .= $line;
+	{	
+		if($short_taxon ne '')
+		{	
+			chomp($line);
+			$FASTA{ $short_taxon }{ $header } .= $line;
 			
-         # record sequence length
+			# record sequence length
          $bases = ($line =~ tr/[ACGTN]//);
-         $length{ $header } += $bases;
-         $MSAwidth += length($line);
-      }
-   }
+			$length{ $header } += $bases;
+			$MSAwidth += length($line);
+		}
+	}
 }
-close(MSA);
+close(MSA);  
 
-## define diploid block by checking the overlap of the longest sequences of taxons 
+# define diploid block by checking the overlap of the longest sequences of taxons 
 my $diploid_block_ok = 0;
 my $diploid5prime = 0;
 my $diploid3prime = $MSAwidth-1;
 my $diploid_midcoord = 0;
 my $diploid_block_length = 0;
-foreach $taxon (@diploids)
-{
+foreach $taxon (@polyconfig::diploids)
+{ 
+	#skip outgroups
+	next if(defined($polyconfig::outgroups{$taxon}));
+
 	foreach $header (sort {$length{$b}<=>$length{$a}} keys(%{ $FASTA{$taxon} }))
 	{	
-		print "$taxon $length{$header} $header\n" if($VERBOSE);
+		print "$taxon $length{$header} $header\n" if($verbose);
 		
 		# to know which diploids have been considered for this calculation
-		if($diploids4width{$taxon})
-		{
-			$diploid_block_ok += $diploids4width{$taxon};
-		}
+		$diploid_block_ok++;
 
 		# record 5' side of block of aligned diploids
       $coord = $diploid5prime;
@@ -160,7 +184,7 @@ foreach $taxon (@diploids)
       $coord = $diploid3prime;
       while(substr($FASTA{$taxon}{$header},$coord,1) eq '-'){ $coord-- }
       if($coord < $diploid3prime){ $diploid3prime = $coord }
-      print "# after $taxon : $diploid5prime to $diploid3prime\n" if($VERBOSE);
+      print "# after $taxon : $diploid5prime to $diploid3prime\n" if($verbose);
 
       $diploid_block_length = $diploid3prime - $diploid5prime + 1;
 
@@ -173,12 +197,12 @@ foreach $taxon (@diploids)
 # compute block length
 $diploid_block_length = $diploid3prime - $diploid5prime + 1;
 
-if($diploid_block_ok < $diploid_width)
+if($diploid_block_ok < $diploids_minus_outgroups)
 {
    print "# MSA skipped as not all required diploids are aligned: $diploid_block_ok\n";
    exit;
 }
-elsif($diploid_block_length < $MINBLOCKLENGTH)
+elsif($diploid_block_length < $min_block_length)
 {
 	print "# MSA skipped due to short diploid block: $diploid_block_length\n";
    exit;
@@ -189,7 +213,7 @@ $diploid_midcoord = $diploid3prime - (($diploid3prime - $diploid5prime)/2);
 
 print "# aligned diploid block: $diploid5prime < $diploid_midcoord > $diploid3prime\n\n";
 
-## check gap fraction of sequences in diploid block
+# check gap fraction of sequences in diploid block
 foreach $header (sort {$inblock{$a}<=>$inblock{$b}} keys(%inblock))
 {
 	$seq = substr( $FASTA{ $header2taxon{$header} } { $header },
@@ -198,19 +222,19 @@ foreach $header (sort {$inblock{$a}<=>$inblock{$b}} keys(%inblock))
 
 	$ngaps = ($seq =~ tr/\-//);
 
-	if($ngaps > $MAXGAPSPERBLOCK)
+	if($ngaps > $max_gaps_block)
 	{
 		print "# MSA skipped due to gappy diploid block: $ngaps ($header)\n";
 		exit;
 	}
 }
 
-## check overlap of outgroup sequences
-foreach $taxon (@outgroups)
+# check overlap of outgroup sequences
+foreach $taxon (keys(%polyconfig::outgroups))
 {
    foreach $header (sort {$length{$b}<=>$length{$a}} keys(%{ $FASTA{$taxon} }))
    {
-      print "outg $taxon $length{$header} $header\n" if($VERBOSE);
+      print "outg $taxon $length{$header} $header\n" if($verbose);
 
 		# make sure this sequence overlaps with diploid block
       # 5'
@@ -224,7 +248,7 @@ foreach $taxon (@outgroups)
 
 		$overlap = ($coord3 - $coord5 + 1) / $diploid_block_length;
 	
-		if( $overlap >= $MINBLOCKOVERLAP ){
+		if( $overlap >= $min_block_overlap ){
 			$inblock{ $header } = $total_seqs_in_block++;			
 		}
 		else
@@ -237,16 +261,16 @@ foreach $taxon (@outgroups)
 	}
 }
 
-## identify polyploid isoforms if requested
-if($LONGTRINITYISOFPOLYPLOIDS)
+# identify polyploid isoforms if requested
+if($remove_short_polyploids)
 {
 	my ($isof);
-	foreach $taxon (@polyploids)
+	foreach $taxon (@polyconfig::polyploids)
 	{
 		my %tx_isoforms;
 		foreach $header (sort {$length{$b}<=>$length{$a}} keys(%{ $FASTA{$taxon} }))
 		{
-			if($header =~ m/($ISOFORMREGEX)/)
+			if($header =~ m/($regex)/)
 			{
 				$isoform = $1;
 				$tx_isoforms{ $isoform }++;
@@ -260,13 +284,13 @@ if($LONGTRINITYISOFPOLYPLOIDS)
 }
 
 ## check overlap of polyploid sequences
-foreach $taxon (@polyploids)
+foreach $taxon (@polyconfig::polyploids)
 {
 	my (@seqs_in_block); # only for this poly species
 
    foreach $header (sort {$length{$b}<=>$length{$a}} keys(%{ $FASTA{$taxon} }))
    {
-      print "poly $taxon $length{$header} $header\n" if($VERBOSE);
+      print "poly $taxon $length{$header} $header\n" if($verbose);
 		
 		if($isoform{$taxon}{$header})
 		{
@@ -286,9 +310,9 @@ foreach $taxon (@polyploids)
 
 		$overlap = ($coord3 - $coord5 + 1) / $diploid_block_length;
 
-		if( $overlap >= $MINBLOCKOVERLAP )
+		if( $overlap >= $min_block_overlap )
 		{
-			print "$header $overlap\n" if($VERBOSE);
+			print "$header $overlap\n" if($verbose);
 
 			# 1st seq of this poly species to be considered
 			if(!@seqs_in_block)
@@ -309,7 +333,7 @@ foreach $taxon (@polyploids)
 													$coord5,
 													$coord3 - $coord5 + 1 );
 
-					print "$seq $header\n$previous_seq $previous_header\n\n" if($VERBOSE);
+					print "$seq $header\n$previous_seq $previous_header\n\n" if($verbose);
 
 					if($previous_seq eq $seq)
 					{
