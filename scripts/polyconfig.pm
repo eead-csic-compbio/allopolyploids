@@ -24,10 +24,10 @@ our @polyploids = ('Taes', 'Ttur');
 
 # Abbreviated names of labelled polyploid sequences as found in FASTA and tree files.
 # See @CODES below for the labels.
-our @polyploids_labelled = (
-   'Taes_A','Taes_B','Taes_C','Taes_D','Taes_E','Taes_F','Taes_G','Taes_H','Taes_I',
-   'Ttur_A','Ttur_B','Ttur_C','Ttur_D','Ttur_E','Ttur_F','Ttur_G','Ttur_H','Ttur_I'
-);
+#our @polyploids_labelled = (
+#   'Taes_A','Taes_B','Taes_C','Taes_D','Taes_E','Taes_F','Taes_G','Taes_H','Taes_I',
+#   'Ttur_A','Ttur_B','Ttur_C','Ttur_D','Ttur_E','Ttur_F','Ttur_G','Ttur_H','Ttur_I'
+#);
 
 # Optional custom definition of clades that contain >1 diploids, if any.
 # Leave empty or comment out the examples otherwise.
@@ -38,6 +38,31 @@ our @polyploids_labelled = (
 our %sister_clades = ();
 $sister_clades{'MRCAAeTr'}{'MRCAAe'} = ['Asha','Atau','Aspe']; # clade 1
 $sister_clades{'MRCAAeTr'}{'MRCATr'} = ['Tura','Tmon'];        # clade 2
+
+# Default values for paremeters controlling how aligned blocks of sequences are
+# produced in script _trim_MSA_block.pl
+my $MINBLOCKLENGTH = 200;
+my $MAXGAPSPERBLOCK = 200; # tolerated gaps for diploids in block
+my $MINBLOCKOVERLAP = 0.50; # fraction of diploid block covered by outgroups & polyploids
+
+# Optional user-defined contribution of diploid species to block width calculations
+# in script _trim_MSA_block.pl (outgroup species are not used)
+# Can be used to indicate that only a member of a clade is required, see Bsyl example 
+#my %diploids4width = (
+# Example wheat values
+#   'Tura'=>1,
+#	'Tmon'=>1,
+#	'Asha'=>1,
+#	'Atau'=>1,
+#	'Aspe'=>1,
+# Brachypodium values
+#'Bsta'=>1,
+#'Bdis'=>1,
+#'Barb'=>1,
+#'Bpin'=>1,
+#'Bsyl'=>0.2,
+#);
+
 
 # see rules defined below
 our @CODES = qw( A B C D E F G H I all ); 
