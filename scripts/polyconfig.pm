@@ -18,7 +18,7 @@ our @EXPORT = qw(
 our @diploids = qw( Osat Hvul Bdis Tura Tmon Asha Atau Aspe ); 
 
 # note these are diploids as well; hash instead of list
-my %outgroups = ( 
+our %outgroups = ( 
 'Osat',1, 
 'Hvul',1,
 'Bdis',1 
