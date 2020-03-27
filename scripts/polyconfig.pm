@@ -16,6 +16,9 @@ our @EXPORT = qw(
 # See %sister_clades below for how to define sister species.
 our @diploids = qw( Osat Hvul Bdis Tura Tmon Asha Atau Aspe ); 
 
+# note these are diploids as well
+my %outgroups = qw( Osat Hvul Bdis );
+
 # Abbreviated names of polyploid species as found in FASTA and tree files.
 our @polyploids = ('Taes', 'Ttur');
 
