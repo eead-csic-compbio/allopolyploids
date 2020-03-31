@@ -470,12 +470,12 @@ foreach $taxon (@polyconfig::polyploids)
 						$total_shared_desc{$desc_dip_taxon} = scalar(@shared_nodes);
 						#print "des_dip_taxon $desc_dip_taxon $shared_nodes[0]\n" if($verbose);
 					}
-					#else{ # in case there are no more diploid MRCAs down the line, confusing
-		         #   $desc_dip_taxon = $dip_taxon{ $node2 };
-					#	$total_shared_desc{$desc_dip_taxon} = scalar(@{$dip_all_ancestors{$node2}});
-					#	$desc_sister{$desc_dip_taxon} = 1;
-				   #   #print "des_tip_taxon $desc_dip_taxon\n" if($verbose);
-					#}
+					else{ # in case there are no more diploid MRCAs down the line
+		            $desc_dip_taxon = $dip_taxon{ $node2 };
+						$total_shared_desc{$desc_dip_taxon} = scalar(@shared_nodes);
+						$desc_sister{$desc_dip_taxon} = 1;
+				      #print "des_tip_taxon $desc_dip_taxon\n" if($verbose);
+					}
 
 					push(@sorted_taxa, $desc_dip_taxon);
 				}
