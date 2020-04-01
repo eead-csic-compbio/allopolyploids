@@ -9,7 +9,7 @@ our @ISA = qw( Exporter );
 
 our @EXPORT = qw(
 	get_label_from_rules
-	@diploids @polyploids %outgroups %sister_clades @CODES $NODEORDER
+	@diploids @polyploids %outgroups $ROOT %sister_clades @CODES $NODEORDER
 	$MINBLOCKLENGTH $MAXGAPSPERBLOCK $MINBLOCKOVERLAP
 );
 
@@ -24,15 +24,18 @@ our %outgroups = (
 'Bdis',1 
 );
 
+# diploid used to root trees 
+our $ROOT = 'Osat';
+
 # Abbreviated names of polyploid species as found in FASTA and tree files.
 our @polyploids = ('Taes', 'Ttur');
 
 # Abbreviated names of labelled polyploid sequences as found in FASTA and tree files.
-# See @CODES below for the labels.
-#our @polyploids_labelled = (
-#   'Taes_A','Taes_B','Taes_C','Taes_D','Taes_E','Taes_F','Taes_G','Taes_H','Taes_I',
-#   'Ttur_A','Ttur_B','Ttur_C','Ttur_D','Ttur_E','Ttur_F','Ttur_G','Ttur_H','Ttur_I'
-#);
+# Note that the capital letters correpond to @CODES below
+our @polyploids_labelled = (
+   'Taes_A','Taes_B','Taes_C','Taes_D','Taes_E','Taes_F','Taes_G','Taes_H','Taes_I',
+   'Ttur_A','Ttur_B','Ttur_C','Ttur_D','Ttur_E','Ttur_F','Ttur_G','Ttur_H','Ttur_I'
+);
 
 # Optional custom definition of clades that contain >1 diploids, if any.
 # Leave empty or comment out the examples otherwise.
@@ -72,6 +75,7 @@ our $MINBLOCKOVERLAP = 0.50; # fraction of diploid block covered by outgroups & 
 # see rules defined below
 our @CODES = qw( A B C D E F G H I all ); 
 
+# use to ladderize trees
 our $NODEORDER = 0; # 1:increasing, 0:decreasing
 
 # Takes 4 parameters: 
@@ -141,23 +145,29 @@ sub get_label_from_rules {
 		elsif($anc_dip_taxon eq 'MRCAAeTr' && $desc_dip_taxon eq 'MRCATr'){ 
 			$lineage_code = 'G' 
 		}
-		elsif($anc_dip_taxon eq 'MRCAAe' ||$anc_dip_taxon eq 'Aspe'){
+		elsif($anc_dip_taxon eq 'MRCAAe' || $anc_dip_taxon eq 'Aspe'){
 			if($desc_dip_taxon eq 'Asha' || $desc_dip_taxon eq 'Atau'){ 
 				$lineage_code = 'D' 
 			}
 		}
-		elsif($anc_dip_taxon eq 'Asha' && $desc_dip_taxon eq 'Atau'){ 
-			$lineage_code = 'E' 
+      elsif($anc_dip_taxon eq 'MRCATr' && $desc_dip_taxon eq 'Tura'){
+            $lineage_code = 'I'
 		}
-		elsif($anc_dip_taxon eq 'Atau' && $desc_dip_taxon eq 'Asha'){ 
+      elsif($anc_dip_taxon eq 'MRCATr' && $desc_dip_taxon eq 'Tmon'){
+            $lineage_code = 'H'
+      }
+      elsif($anc_dip_taxon eq 'Atau' && $desc_dip_taxon eq 'Asha'){
+         $lineage_code = 'E'
+      }
+		elsif($anc_dip_taxon eq 'Asha' && $desc_dip_taxon eq 'Atau'){ 
 			$lineage_code = 'F' 
 		}
-		elsif($anc_dip_taxon eq 'Tmon' && $desc_dip_taxon eq 'Tura'){ 
-			$lineage_code = 'H' 
-		}
-		elsif($anc_dip_taxon eq 'Tura' && $desc_dip_taxon eq 'Tmon'){ 
-			$lineage_code = 'I' 
-		}
+      elsif($anc_dip_taxon eq 'Tura' && $desc_dip_taxon eq 'Tmon'){
+         $lineage_code = 'H'
+      }
+      elsif($anc_dip_taxon eq 'Tmon' && $desc_dip_taxon eq 'Tura'){
+         $lineage_code = 'I'
+      }
 
 	}
 
