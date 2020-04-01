@@ -1,38 +1,47 @@
 #!/usr/bin/env perl
-use strict;
-use warnings;
-
+#
 # reads all multi-tree Newick files in a folder and, for each file,
 # i) extracts each individual tree
 # ii) re-roots and ladderizes the individual tree
 # iii) re-labels the polyploid leafs in the tree
 # iv) computes overall frequencies of polyploid labels
+#
+# Input trees are usually produced by IQ-TREE and have the 
+# extension .boottrees (see $EXT below)
+#
+# B Contreras-Moreira, R Sancho, EEAD-CSIC & EPS-UNIZAR 2018-20
 
-my %COLLABEL = ( 1,'A',2,'B',3,'C',4,'D',5,'E',6,'F',7,'G',8,'H',9,'I' );
-my @polyploids = (
-        'Bhyb_A','Bhyb_B','Bhyb_C','Bhyb_D','Bhyb_E','Bhyb_F','Bhyb_G','Bhyb_H','Bhyb_I',
-        'Bboi_A','Bboi_B','Bboi_C','Bboi_D','Bboi_E','Bboi_F','Bboi_G','Bboi_H','Bboi_I',
-        'Bret_A','Bret_B','Bret_C','Bret_D','Bret_E','Bret_F','Bret_G','Bret_H','Bret_I',
-        'Bmex_A','Bmex_B','Bmex_C','Bmex_D','Bmex_E','Bmex_F','Bmex_G','Bmex_H','Bmex_I',
-        'Brup_A','Brup_B','Brup_C','Brup_D','Brup_E','Brup_F','Brup_G','Brup_H','Brup_I',
-        'Bpho_A','Bpho_B','Bpho_C','Bpho_D','Bpho_E','Bpho_F','Bpho_G','Bpho_H','Bpho_I',
-        'B422_A','B422_B','B422_C','B422_D','B422_E','B422_F','B422_G','B422_H','B422_I'
-);
-
+use strict;
+use warnings;
+use Getopt::Std;
+use FindBin '$Bin';
+use lib "$Bin";
+use polyconfig;
+use polyutils;
 
 my $EXT = '.boottrees';
-my $REROOTEXE = './_reroot_tree.pl';
-my $RELABELEXE = './_check_lineages_polyploids_ABCDEFGHI_noFASTA.pl';
+my $REROOTEXE  = "$Bin/_reroot_tree.pl";
+my $RELABELEXE = "$Bin/_check_lineages_polyploids.pl";
+
+#########################################################
 
 my ($all_trees_dir,$taxon_label);
 
 if(!$ARGV[0]){ die "# usage: $0 <folder with multi-tree Newick files>\n" }
 else{ $all_trees_dir = $ARGV[0] }
 
-opendir(ALL,$all_trees_dir) || die "# cannot list $all_trees_dir\n"; 
+# read all input files names
+opendir(ALL,$all_trees_dir) || die "# cannot list $all_trees_dir\n";
 my @multiNewick = grep{/$EXT/} readdir(ALL);
 closedir(ALL);
 
+# hash positions of @polyconfig::CODES
+my (%COLLABEL, $col);
+foreach $col (0 .. $#polyconfig::CODES) {
+   $COLLABEL{ $col+1 } = $polyconfig::CODES[ $col ];
+}
+
+# parse multi-tree files one at a time
 foreach my $multifile (sort (@multiNewick)){
 	
 	my (%boot_stats);	
@@ -46,6 +55,7 @@ foreach my $multifile (sort (@multiNewick)){
 	my $count = 1;
 	open(MULTITREE,"$all_trees_dir/$multifile") || 
 		die "# cannot read $all_trees_dir/$multifile\n";
+
 	while(<MULTITREE>){
 		next if(/^$/);
 		
@@ -61,29 +71,32 @@ foreach my $multifile (sort (@multiNewick)){
 
 		# iii) relabel polyploid leaf (actually we don't care about relabelled tree) 
 		# and collect polyploid_taxon_label stats
-		open(LABELSTATS,"$RELABELEXE $rooted_treefile |") ||
-			die "# cannot run $RELABELEXE $rooted_treefile\n";
-		while(<LABELSTATS>){
-			if(/^>(\S+)/){ #print;
+		print "$RELABELEXE -t $rooted_treefile\n"; exit;
+		open(LABELSTATS,"$RELABELEXE -t $rooted_treefile |") ||
+			die "# cannot run $RELABELEXE -t $rooted_treefile\n";
+
+		while(<LABELSTATS>){ 
+			if(/^>(\S+)/){ print;
 				my @stats = split(/\t/,$_);
 				$taxon_label = $1;
-				foreach my $col (1 .. 9){
+				foreach $col (1 .. scalar(keys(%COLLABEL))){
 					$boot_stats{$taxon_label}{$COLLABEL{$col}} += $stats[$col];
 				}
 			}	
 		}
 		close(LABELSTATS);
-
+		exit;
 		$count++;
 	}
 	close(MULTITREE);
 
 	# iv) print this multi-tree label stats
+	# 6L_OrthoMCL_group6293_0.7_NoGaps.fa.block.label.reduced.fna.trimmed.fna.extract_Ttur_I.fna.boottrees
 	my $short_name = $multifile;
-	if($multifile =~ m/^(\d+_c\d+)/){
+	if($multifile =~ m/^(\.*_group\d+)/){
 		$short_name = $1;
 	}
-	foreach $taxon_label (@polyploids){
+	foreach $taxon_label (@polyconfig::polyploids_labelled){
 
 		next if(!defined($boot_stats{$taxon_label}));
 
