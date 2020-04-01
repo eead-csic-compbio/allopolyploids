@@ -44,17 +44,19 @@ my (%dip_all_ancestors,%dip_all_ancestors_string,%diptaxon2node);
 my ($MRCA,$diploid_MRCA,$diploid_MRCA_node,%dip_MRCA);
 my (@clade_MRCA_nodes,%clade_MRCA,%clade_ancestors);
 
-my ($MSA_file,$tree_file,$verbose,%opts) = ('','',0);
+my ($MSA_file,$tree_file,$use_labeled_polyploids,$verbose,%opts) = ('','',0,0);
 
-getopts('hf:t:v', \%opts);
+getopts('hf:t:lv', \%opts);
 
 if(($opts{'h'})||(scalar(keys(%opts))==0))
 {
 	print "\nusage: $0 [options]\n\n";
 	print "-h this message\n";
 	print "-t rooted, sorted tree Newick file with .ph extension\n";   
-   print "-v verbose output, useful for debugging                      (optional)\n";
 	print "-f FASTA file with aligned tree sequences and .fna extension (optional)\n";
+   print "-v verbose output, useful for debugging                      (optional)\n";
+	print "-l use CODE-labelled polyploids instead of plain names,      (optional)\n";
+	print "   this is useful to relabel boostrapped trees\n\n";
 	exit(0);
 } 
 
@@ -71,8 +73,18 @@ if(defined($opts{'v'})){
    $verbose = 1;
 }
 
+if(defined($opts{'l'})){
+	$use_labeled_polyploids = 1;
+}
+
 # print parsed arguments
-print "# $0 -t $tree_file -f $MSA_file -v $verbose\n\n";
+print "# $0 -t $tree_file -f $MSA_file -v $verbose -l $use_labeled_polyploids\n\n";
+
+# set polyploid list of names to use
+my @polyploids = @polyconfig::polyploids;
+if($use_labeled_polyploids){
+	@polyploids = @polyconfig::polyploids_labelled;
+}
 
 # names of three output files
 my $labelledMSA_file = $MSA_file;
@@ -181,6 +193,7 @@ foreach $node (0 .. $#refDiploid-1){
 		print "MRCA $dip_MRCA{ $MRCA } $MRCA\n" if($verbose); 
 	}
 }
+
 
 ## search for MRCA nodes of any sister clades defined above
 ## and save them in %clade_MRCA and %clade_ancestors
@@ -315,7 +328,7 @@ if($MSA_file ne ''){
 foreach $lineage_code (@CODES){ printf("\t%s",$lineage_code) }  print "\n";
 
 # find polyploid nodes, label nr and add them to labelled MSA
-foreach $taxon (@polyconfig::polyploids)
+foreach $taxon (@polyploids)
 {
 	my (%taxon_ancestors,@nr_taxon_nodes,%taxon_order,%taxon_stats,%taxon_seqs);
 
