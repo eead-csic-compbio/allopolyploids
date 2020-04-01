@@ -67,17 +67,18 @@ foreach my $multifile (sort (@multiNewick)){
 
 		# ii) re-root and ladderize individual trees
 		my $rooted_treefile = "$resultsdir/$count.root.ph";
-		system("$REROOTEXE $treefile > $rooted_treefile");
+		system("$REROOTEXE $treefile > $rooted_treefile"); 
 
 		# iii) relabel polyploid leaf (actually we don't care about relabelled tree) 
 		# and collect polyploid_taxon_label stats
-		print "$RELABELEXE -t $rooted_treefile\n"; exit;
-		open(LABELSTATS,"$RELABELEXE -t $rooted_treefile |") ||
-			die "# cannot run $RELABELEXE -t $rooted_treefile\n";
+		#print "$RELABELEXE -t $rooted_treefile -l \n"; exit;
+		open(LABELSTATS,"$RELABELEXE -t $rooted_treefile -l|") ||
+			die "# cannot run $RELABELEXE -t $rooted_treefile -l\n";
 
-		while(<LABELSTATS>){ 
-			if(/^>(\S+)/){ print;
-				my @stats = split(/\t/,$_);
+		while(my $line = <LABELSTATS>){ 
+			next if($line =~ /^#/);
+			if($line =~ /^(\S+)/){  
+				my @stats = split(/\t/,$line);
 				$taxon_label = $1;
 				foreach $col (1 .. scalar(keys(%COLLABEL))){
 					$boot_stats{$taxon_label}{$COLLABEL{$col}} += $stats[$col];
@@ -85,26 +86,43 @@ foreach my $multifile (sort (@multiNewick)){
 			}	
 		}
 		close(LABELSTATS);
-		exit;
+		
 		$count++;
 	}
 	close(MULTITREE);
 
 	# iv) print this multi-tree label stats
-	# 6L_OrthoMCL_group6293_0.7_NoGaps.fa.block.label.reduced.fna.trimmed.fna.extract_Ttur_I.fna.boottrees
+	my ($stats_line, $n_of_data);	
+
+	# shorten names for stats table 
+	# 6L_OrthoMCL_group6293_0.7_NoGaps.fa.block.label...
+	# 99985_c30921_g1_i2_chr9-30933669-30938122--.label...
 	my $short_name = $multifile;
-	if($multifile =~ m/^(\.*_group\d+)/){
+	if($multifile =~ m/^(\.*)?\.block/){
 		$short_name = $1;
 	}
+
 	foreach $taxon_label (@polyconfig::polyploids_labelled){
 
 		next if(!defined($boot_stats{$taxon_label}));
 
-		print "$short_name\t$taxon_label";
-		foreach my $col (1 .. 9){
-			printf("\t%d",		
+		$n_of_data = 0;
+		$stats_line = '';
+
+		$stats_line .= "$short_name\t$taxon_label";
+		foreach $col (1 .. scalar(keys(%COLLABEL))){
+			$stats_line .= sprintf("\t%d",		
 				$boot_stats{$taxon_label}{$COLLABEL{$col}});
-      } print "\n";
+			if($boot_stats{$taxon_label}{$COLLABEL{$col}} > 0){
+				$n_of_data++;
+			} 
+      } 
+
+		# skip taxon_labels with no data
+		next if($n_of_data == 0);
+
+		# actually print some stats
+		print "$stats_line\n";	
 	}
 
 	#last; # stop after 1 gene
