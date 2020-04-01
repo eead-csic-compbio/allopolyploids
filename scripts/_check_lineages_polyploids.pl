@@ -121,7 +121,7 @@ my $unsorted_input_tree = Bio::Phylo::IO->parse(
 
 $unsorted_input_tree->ladderize($polyconfig::NODEORDER);
 $sorted_newick = $unsorted_input_tree->to_newick();
-$sorted_newick =~ s/'//g;
+$sorted_newick =~ s/'//g; 
 my $iostring = IO::String->new($sorted_newick);
 
 
@@ -138,11 +138,13 @@ my (@refDiploid, %dip_nodes);
 my $total_nodes = 0;
 for $node ($intree->get_nodes()) {
 	if(defined($node->id())) {
-		
+
 		$total_nodes++; # labelled nodes that is
 
-		foreach $d ( 0 .. $#polyconfig::diploids) {
-			if($node->id() =~ m/_($polyconfig::diploids[$d])$/) { 
+		foreach $d ( 0 .. $#polyconfig::diploids) {			
+			if($node->id() =~ m/_($polyconfig::diploids[$d])$/ || # normal trees
+					$node->id() =~ m/^($polyconfig::diploids[$d])$/) { #label bootstrapped
+
 				$taxon1 = $1;
 				push(@refDiploid,$node); 
 				$dip_taxon{$node} = $taxon1;
@@ -161,6 +163,9 @@ for $node ($intree->get_nodes()) {
 	}	
 }
 
+if(scalar(@refDiploid) == 0){
+	die "# ERROR: failed to parsed any diploids, please check their names\n"
+} 
 
 # identify most recent common ancestors (MRCA) among diploid nodes
 # diploids nodes are compared pairwise in the order they appear from root to tips
@@ -210,12 +215,12 @@ foreach my $bifur (keys(%polyconfig::sister_clades)){
 		foreach $snode (0 .. $#snodes-1){
 			$taxon1 = $snodes[$snode];
 			$taxon2 = $snodes[$snode+1]; #print "$taxon1 $taxon2\n";
-
+			
 			# 1st MRCA is computed for this clade
 			if($sMRCA == -1){ 
 				$sMRCA = get_MRCA( $dip_all_ancestors{$diptaxon2node{$taxon1}} , 
 								$dip_all_ancestors{$diptaxon2node{$taxon2}} );
-				
+			
 				# retrieve the list of node ids of the ancestors, 
 				# which should be among the ancestors of taxon2
 				$MRCAfound = 0;
