@@ -2,7 +2,8 @@
 
 # Re-roots an input Newick tree with a user-defined outgroup,
 # identifies diploid nodes, prunes the non-diploids and finally 
-# outputs the ladderized diploid backbone 
+# outputs the ladderized diploid backbone.
+# Outgroup is defined in polyconfig module as $ROOT.. 
 #
 # Diploid species must contain unique string hard-coded in @polyconfig::diploids
 # 
@@ -33,10 +34,12 @@ if(!$test_output ||$test_output !~ /Usage/){
 my ($outfound,$outnode,$sorted_newick,$taxon,$node,$d,$header) = (0);
 my ($non_diploid_labels);
 
-die "# usage: $0 <tree.newick> <outgroup>\n" if(!$ARGV[1]);
+die "# usage: $0 <tree.newick>\n" if(!$ARGV[0]);
 
 my $pruned_tree_file = $ARGV[0].'.pruned';
-my $outgroup_string = $ARGV[1];
+
+# set outgroup root node
+my $outgroup_string = $polyconfig::ROOT;
 
 # read input tree 
 my $input = new Bio::TreeIO(
