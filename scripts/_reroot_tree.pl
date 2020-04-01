@@ -1,7 +1,8 @@
 #!/usr/bin/perl
 
-# Re-roots an input Newick tree with a user-defined outgroup and 
+# Re-roots an input Newick tree with an outgroup and 
 # prints the resulting sorted tree.
+# Outgroup is defined in polyconfig module.
 # Based on https://github.com/phac-nml/snvphyl-tools/blob/master/rearrange_snv_matrix.pl
 #
 # B Contreras-Moreira, R Sancho, EEAD-CSIC & EPS-UNIZAR 2018-20
@@ -19,9 +20,10 @@ use Bio::Phylo::Forest::Tree;
  
 my ($outfound,$outnode,$sorted_newick) = (0);
 
-die "# usage: $0 <tree.newick> <outgroup>\n" if(!$ARGV[1]);
-my $outgroup_string = $ARGV[1];
+die "# usage: $0 <tree.newick>\n" if(!$ARGV[0]);
 
+# set outgroup root node
+my $outgroup_string = $polyconfig::ROOT;
 
 # read input tree
 my $input = new Bio::TreeIO(-file=>$ARGV[0],-format=>'newick');
