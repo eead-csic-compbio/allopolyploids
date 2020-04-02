@@ -205,6 +205,8 @@ foreach $node (0 .. $#refDiploid-1){
 my ($snode1,$snode2,$snode,$sclade,$sMRCA,$MRCAfound,%sisterMRCA);
 foreach my $bifur (keys(%polyconfig::sister_clades)){
 
+	my %overwrite;
+
 	# find MRCA of each clade and save it
 	foreach $sclade (keys(%{ $polyconfig::sister_clades{$bifur} })){
 		
@@ -244,6 +246,11 @@ foreach my $bifur (keys(%polyconfig::sister_clades)){
 		}
 		
 		# save this clade's MRCA (node) & ancestors
+		if(defined($clade_MRCA{$sMRCA})){
+			print "# overwrite $clade_MRCA{$sMRCA} with $sclade\n" if($verbose);
+			$overwrite{$sclade}{$clade_MRCA{$sMRCA}} = 1; # Tura,Tmon
+			$overwrite{$clade_MRCA{$sMRCA}}{$sclade} = 1; # Tmon,Tura
+		}
 		$clade_MRCA{$sMRCA} = $sclade;
 		$clade_ancestors{$sMRCA} = \@sancestors;
 		print "MRCA $sclade $sMRCA\n" if($verbose);
@@ -257,8 +264,16 @@ foreach my $bifur (keys(%polyconfig::sister_clades)){
 		if($clade_MRCA{$snode} eq $sclades[0]){ $node1 = $snode }
 		elsif($clade_MRCA{$snode} eq $sclades[1]){ $node2 = $snode }
 	}
-	if(!$node1){ die "# ERROR: cannot find node $sclades[0]\n" }
-   elsif(!$node2){ die "# ERROR: cannot find node $sclades[1]\n" }
+
+	# in case MRCA nodes 1/2 were overwritten
+	if(!$node1){ 
+		if($overwrite{$sclades[0]}{$sclades[1]}){ $node1 = $node2 } 
+		else{ die "# ERROR: cannot find node $sclades[0]\n" }
+	}
+   elsif(!$node2){ 
+		if($overwrite{$sclades[0]}{$sclades[1]}){ $node2 = $node1 } 
+		else{ die "# ERROR: cannot find node $sclades[1]\n" }
+	}
 
 	$sMRCA = get_MRCA( $clade_ancestors{ $node1 } ,
                          $clade_ancestors{ $node2 } );
@@ -279,7 +294,7 @@ foreach my $bifur (keys(%polyconfig::sister_clades)){
 
 	# save this sister clade MRCA (node) & ancestors
 	if(defined($clade_MRCA{$sMRCA})){
-      print "# orverwrite MRCA $clade_MRCA{$sMRCA}\n";
+      print "# overwrite $clade_MRCA{$sMRCA} with $bifur\n" if($verbose);
    }
 	$clade_MRCA{$sMRCA} = $bifur;
 	$clade_ancestors{$sMRCA} = \@cancestors;
