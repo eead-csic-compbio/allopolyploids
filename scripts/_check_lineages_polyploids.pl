@@ -36,13 +36,13 @@ use Bio::Phylo::Forest::Tree;
 my ($outfound,$outnode,$sorted_newick,$taxon,$node,$node_id,$child,$anc) = (0);
 my ($min_anc_dist,$min_desc_dist,$dist,$anc_dip_taxon,$desc_dip_taxon) = (0,0);
 my $MSAwidth = 0;
-my ($coord,$coord5,$coord3,$midcoord);
+my ($coord,$coord5,$coord3,$midcoord,$node2_id);
 my ($d,$header,$node1,$node2,$taxon1,$taxon2,$bases,$lineage_code,$full_taxon);
 my ($poly_ancestor_MRCA,$desc_is_sister,$anc_is_sister,$next_MRCA);
-my (%length,%FASTA,%order,%dip_taxon,%MRCA_computed,%dip_ancestor,%header2label);
-my (%dip_all_ancestors,%dip_all_ancestors_string,%diptaxon2node);
+my (%length,%FASTA,%id2node,%dip_taxon,%MRCA_computed,%dip_ancestor);
+my (%dip_all_ancestors,%dip_all_ancestors_string,%diptaxon2node,%header2label);
 my ($MRCA,$diploid_MRCA,$diploid_MRCA_node,%dip_MRCA);
-my (@clade_MRCA_nodes,%clade_MRCA,%clade_ancestors);
+my (@sorted_clade_MRCA_nodes,%clade_MRCA_nodes,%clade_MRCA,%clade_ancestors);
 
 my ($MSA_file,$tree_file,$use_labeled_polyploids,$verbose,%opts) = ('','',0,0);
 
@@ -133,23 +133,30 @@ my $input = new Bio::TreeIO(
 my $intree = $input->next_tree();
 
 
-# find reference diploid sequences
-my (@refDiploid, %dip_nodes);
+# find reference diploid sequences and other labelled nodes
+my (@refDiploid, @refNodes, %dip_nodes);
 my $total_nodes = 0;
 for $node ($intree->get_nodes()) {
+
+	# save all nodes in ladder order
+	push(@refNodes,$node);
+	$id2node{ $node->internal_id() } = $node;
+
 	if(defined($node->id())) {
 
-		$total_nodes++; # labelled nodes that is
+		$total_nodes++; # labelled nodes 
 
+		# diploid nodes
 		foreach $d ( 0 .. $#polyconfig::diploids) {			
 			if($node->id() =~ m/_($polyconfig::diploids[$d])$/ || # normal trees
 					$node->id() =~ m/^($polyconfig::diploids[$d])$/) { #label bootstrapped
 
-				$taxon1 = $1;
+				# diploid nodes in ladder order
 				push(@refDiploid,$node); 
+
+				$taxon1 = $1;
 				$dip_taxon{$node} = $taxon1;
 				$diptaxon2node{$taxon1} = $node; 
-				$order{$node->id()} = $total_nodes; 
 				$dip_ancestor{$node} = $node->ancestor(); # immediate ancestor
 				print "$total_nodes ".$node->id()." ".$node->ancestor()."\n" if($verbose);
 
@@ -200,7 +207,7 @@ foreach $node (0 .. $#refDiploid-1){
 }
 
 
-## search for MRCA nodes of any sister clades defined above
+## search for MRCA nodes of any sister clades defined in polyconfig
 ## and save them in %clade_MRCA and %clade_ancestors
 my ($snode1,$snode2,$snode,$sclade,$sMRCA,$MRCAfound,%sisterMRCA);
 foreach my $bifur (keys(%polyconfig::sister_clades)){
@@ -253,7 +260,7 @@ foreach my $bifur (keys(%polyconfig::sister_clades)){
 		}
 		$clade_MRCA{$sMRCA} = $sclade;
 		$clade_ancestors{$sMRCA} = \@sancestors;
-		print "MRCA $sclade $sMRCA\n" if($verbose);
+		print "MRCA $sclade $sMRCA $id2node{$sMRCA}\n" if($verbose);
 	}
 
 	# find MRCA of the two clades in this bifurcation,
@@ -298,13 +305,21 @@ foreach my $bifur (keys(%polyconfig::sister_clades)){
    }
 	$clade_MRCA{$sMRCA} = $bifur;
 	$clade_ancestors{$sMRCA} = \@cancestors;
-	print "MRCA $bifur $sMRCA\n" if($verbose);
+	print "MRCA $bifur $sMRCA $id2node{$sMRCA}\n" if($verbose);
 
 	# save list of nodes in hierarchical order
-	push(@clade_MRCA_nodes,$sMRCA);
-	if($node1 != $sMRCA){ push(@clade_MRCA_nodes,$node1) } 
-	if($node2 != $sMRCA){ push(@clade_MRCA_nodes,$node2) }
+	#push(@sorted_clade_MRCA_nodes,$sMRCA); # left in case useful later
+	$clade_MRCA_nodes{ $sMRCA } = 1; 
+	if($node1 != $sMRCA){ 
+		#push(@sorted_clade_MRCA_nodes,$node1); 
+		$clade_MRCA_nodes{ $node1 } = 1;
+	} 
+	if($node2 != $sMRCA){ 
+		#push(@sorted_clade_MRCA_nodes,$node2);
+		$clade_MRCA_nodes{ $node2 } = 1;
+	}
 } 
+
 
 # create labelled MSA files
 if($MSA_file ne ''){
@@ -350,18 +365,15 @@ foreach $lineage_code (@CODES){ printf("\t%s",$lineage_code) }  print "\n";
 # find polyploid nodes, label nr and add them to labelled MSA
 foreach $taxon (@polyploids)
 {
-	my (%taxon_ancestors,@nr_taxon_nodes,%taxon_order,%taxon_stats,%taxon_seqs);
+	my (%taxon_ancestors,@nr_taxon_nodes,%taxon_stats,%taxon_seqs);
 
 	print "> $taxon\n" if($verbose);
 
-	$total_nodes = 0;
 	for $node ( $intree->get_nodes() ) {
 		if(defined($node->id())) {
-			$total_nodes++;
 			if($node->id() =~ m/$taxon$/){
 
 				# found a polyploid sequence			
-				$taxon_order{$node->id()} = $total_nodes;
 				$anc = $node->ancestor();
 				push(@{$taxon_ancestors{$anc}},$node);
 			}
@@ -436,86 +448,84 @@ foreach $taxon (@polyploids)
 		}
 		print "anc_dip_taxon $anc_dip_taxon ($anc_is_sister)\n" if($verbose);		
 	
-		# find the first descendant which is either: 
+		# find the first descendant with max shared nodes which is either: 
 		# i) a MRCA of sister clades, ii) a diploid sister, iii) a MRCA between diploids
 		my (%total_shared_desc,%desc_sister, @sorted_taxa); 
 
-		# try first MRCA nodes of explicitely defined sister nodes
-		foreach $node2 (@clade_MRCA_nodes){
+		foreach $node2 (@refNodes){
+
+			# MRCA nodes are handled as internal ids, whilst diploids are node objects
+			$node2_id = $node2->internal_id();
+
+			# skip nodes which are not diploid nor sister clade MRCAs
+			next if(!$dip_taxon{$node2} && !$clade_MRCA_nodes{$node2_id});
 
 			# a taxon cannot be both ancestor and descendant
-			next if($anc_dip_taxon eq $clade_MRCA{$node2});
-
-			#$next_MRCA = '';
-			my @shared_nodes = get_shared_ancestors( $clade_ancestors{$node2},
-					\@node1_all_ancestors, $poly_ancestor_MRCA );
-
-			#if(scalar(@shared_nodes) > 1){		 
-			#	$next_MRCA = get_next_MRCA( $clade_ancestors{$node2}, $shared_nodes[0], 
-			#		\%clade_MRCA  ); 
-			#} 
-
-			print "<$clade_MRCA{$node2}> ".join(',',@shared_nodes).
-                  " ($poly_ancestor_MRCA) ".
-                  join(',',@{$clade_ancestors{$node2}})." ".
-                  join(',',@node1_all_ancestors)."\n" if($verbose);	
-
-			$desc_dip_taxon = $clade_MRCA{$node2};
-         $total_shared_desc{$desc_dip_taxon} = scalar(@shared_nodes);
-			push(@sorted_taxa, $clade_MRCA{$node2});
-		} 
-	
-		# now try diploids
-		foreach $node2 (@refDiploid){
-		
-			# a taxon cannot be both ancestor and descendant
-         next if($anc_dip_taxon eq $dip_taxon{$node2});
+			next if($clade_MRCA{$node2_id} && $anc_dip_taxon eq $clade_MRCA{$node2_id});
+			next if($dip_taxon{$node2} && $anc_dip_taxon eq $dip_taxon{$node2});
 
 			# all ancestors are shared: polyploid (node1) and diploid (node2) are sisters
-			if($node1_all_ancestors_string eq $dip_all_ancestors_string{$node2}){
+			if($dip_taxon{$node2} &&
+				$node1_all_ancestors_string eq $dip_all_ancestors_string{$node2}){
 
-				$desc_dip_taxon = $dip_taxon{ $node2 };
-				$total_shared_desc{$desc_dip_taxon} = scalar(@{$dip_all_ancestors{$node2}});
-				$desc_sister{$desc_dip_taxon} = 1;
-				push(@sorted_taxa, $desc_dip_taxon);
-				last; #print "des_tip_taxon $desc_dip_taxon\n" if($verbose); 
+            $desc_dip_taxon = $dip_taxon{ $node2 };
+            $total_shared_desc{$desc_dip_taxon} = scalar(@{$dip_all_ancestors{$node2}});
+            $desc_sister{$desc_dip_taxon} = 1;
+            push(@sorted_taxa, $desc_dip_taxon);
+            last;
 			}
-			else{ # check shared ancestors between consecutive diploid MRCA nodes
+			
+			# not sisters
+			if($clade_MRCA_nodes{$node2_id}){ # sister clade MRCA node
 
-				$next_MRCA='';
-				my @shared_nodes = get_shared_ancestors( $dip_all_ancestors{$node2}, 
-								\@node1_all_ancestors, $poly_ancestor_MRCA );
+				my @shared_nodes = get_shared_ancestors( $clade_ancestors{$node2_id},
+											\@node1_all_ancestors, $poly_ancestor_MRCA );
+
+				print "<$clade_MRCA{$node2_id}> ".join(',',@shared_nodes).
+                  " ($poly_ancestor_MRCA) ".
+                  join(',',@{$clade_ancestors{$node2_id}})." ".
+                  join(',',@node1_all_ancestors)."\n" if($verbose);	
+
+				$desc_dip_taxon = $clade_MRCA{$node2_id};
+				$total_shared_desc{$desc_dip_taxon} = scalar(@shared_nodes);
+				push(@sorted_taxa, $clade_MRCA{$node2_id});
+			}
+			else { # diploid MRCA nodes
+
+				$next_MRCA = '';
+				my @shared_nodes = get_shared_ancestors( $dip_all_ancestors{$node2},
+											\@node1_all_ancestors, $poly_ancestor_MRCA );
 
 				if(scalar(@shared_nodes) > 1){
 					$next_MRCA = get_next_MRCA( $dip_all_ancestors{$node2}, $shared_nodes[0],
-						\%dip_MRCA  );
+															\%dip_MRCA  );
 				}
 
 				print "<$dip_taxon{ $node2 }> ".join(',',@shared_nodes).
-						" ($poly_ancestor_MRCA) ". 
-						join(',',@{$dip_all_ancestors{$node2}})." ".
-						join(',',@node1_all_ancestors)."\n" if($verbose);
+                 " ($poly_ancestor_MRCA) ".
+                  join(',',@{$dip_all_ancestors{$node2}})." ".
+                  join(',',@node1_all_ancestors)."\n" if($verbose);
 
 				if(scalar(@shared_nodes) > 0){
-								
-					if($next_MRCA ne ''){ 
+
+					if($next_MRCA ne ''){
 						$desc_dip_taxon = $dip_MRCA{$next_MRCA};
 						$total_shared_desc{$desc_dip_taxon} = scalar(@shared_nodes);
 						#print "des_dip_taxon $desc_dip_taxon $shared_nodes[0]\n" if($verbose);
 					}
 					else{ # in case there are no more diploid MRCAs down the line
-		            $desc_dip_taxon = $dip_taxon{ $node2 };
+						$desc_dip_taxon = $dip_taxon{ $node2 };
 						$total_shared_desc{$desc_dip_taxon} = scalar(@shared_nodes);
 						$desc_sister{$desc_dip_taxon} = 1;
-				      #print "des_tip_taxon $desc_dip_taxon\n" if($verbose);
+						#print "des_tip_taxon $desc_dip_taxon\n" if($verbose);
 					}
-
-					push(@sorted_taxa, $desc_dip_taxon);
+					
+					push(@sorted_taxa, $desc_dip_taxon);					
 				}
 			}
-		}
-
-		# check diploid with most shared ancestors, which will be descendant
+		} 
+	
+		# check taxon/MRCA with most shared ancestors, which will be descendant
 		my $max_shared = 0;
 		$desc_is_sister = 0;	
 		$desc_dip_taxon = '';
