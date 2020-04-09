@@ -132,13 +132,15 @@ for $node ( $sorted_pruned_tree->get_nodes() ) {
 ## print simplified Newick topology
 my $newick_string = $sorted_pruned_tree->to_newick();
 
-# eliminate distances
+# eliminate distances and single quotes
 $newick_string =~ s/:[\d\.]+//g; 
+$newick_string =~ s/'//g;
 
 # simplify node names
 foreach $taxon (@diploids){
-	$newick_string =~ s/[^\(\),]+?_*$taxon([\(\),])/$taxon$1/g;
+	$newick_string =~ s/[^\(\),]+?_*$taxon([\(\),])/$taxon$1/g; 
 }
+
 
 # terminate by printing out the Newick string 
 print "$newick_string\n";
