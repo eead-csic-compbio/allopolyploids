@@ -116,18 +116,26 @@ if($MSA_file ne ''){
 }
 
 # get order of diploids nodes in stripped, ladderized tree
+# this is used when calling MRCA nodes amid diploids
 open(CHECKDIPS,"$CHECKDIPEXE $tree_file nosave |") || 
 	die "# ERROR: cannot run $CHECKDIPEXE $tree_file nosave\n";
 while(my $line = <CHECKDIPS>){
 	next if($line =~ /^#/);
 	if($line =~ /^\(/){
-		while($line =~ /([^\(\);,]+)/g){
-			push(@sorted_diploid_taxa,$1);
+		while($line =~ /([^\(\);,\n]+)/g){
+
+			$taxon = $1;
+
+			# make sure only accepted diploid taxa are taken
+			if(grep(/^$taxon$/,@polyconfig::diploids)) {
+				push(@sorted_diploid_taxa,$taxon); 
+			}
 		}
 	}	
 }
 close(CHECKDIPS);
-print "# sorted diploids: ".join(',',@sorted_diploid_taxa)."\n" if($verbose);
+printf("# sorted diploids (%d): %s\n\n",
+	scalar(@sorted_diploid_taxa),join(',',@sorted_diploid_taxa)) if($verbose);
 
 # ladderize/sort input tree 
 my $unsorted_input_tree = Bio::Phylo::IO->parse(
@@ -154,7 +162,7 @@ my (@refDiploid, @refNodes, %dip_nodes);
 my $total_nodes = 0;
 for $node ($intree->get_nodes()) {
 
-	# save all nodes in ladder order
+	# save all nodes in ladder order, including polyploids
 	push(@refNodes,$node);
 	$id2node{ $node->internal_id() } = $node;
 
@@ -192,10 +200,25 @@ if(scalar(@refDiploid) == 0){
 
 # identify most recent common ancestors (MRCA) among diploid nodes
 # diploids nodes are compared pairwise in the order they appear from root to tips
-foreach $node (0 .. $#refDiploid-1){
+# in the stripped tree
 
-	$node1 = $refDiploid[$node];
-	$node2 = $refDiploid[$node+1]; 
+#foreach $node (0 .. $#refDiploid-1){
+#	$node1 = $refDiploid[$node];
+#	$node2 = $refDiploid[$node+1]; 
+
+foreach $taxon (0 .. $#sorted_diploid_taxa-1){
+
+	if(!$diptaxon2node{ $sorted_diploid_taxa[$taxon] }){
+		die "# ERROR: cannot find taxon $sorted_diploid_taxa[$taxon] 1\n";
+	} else {
+		$node1 = $diptaxon2node{ $sorted_diploid_taxa[$taxon] };
+	}
+
+	if(!$diptaxon2node{ $sorted_diploid_taxa[$taxon+1] }){
+      die "# ERROR: cannot find taxon $sorted_diploid_taxa[$taxon+1] 2\n";
+   } else {
+		$node2 = $diptaxon2node{ $sorted_diploid_taxa[$taxon+1] };
+	} 
 
    if(!defined($MRCA_computed{$node1})){ # sister of previous node
 
@@ -204,24 +227,24 @@ foreach $node (0 .. $#refDiploid-1){
 		$MRCA = get_MRCA( $dip_all_ancestors{$node1} , $dip_all_ancestors{$node2} ); 
 		$dip_MRCA{ $MRCA } = $dip_taxon{$node1};
 		$MRCA_computed{$node1} = 1;
-		print "MRCA $dip_MRCA{ $MRCA } $MRCA $dip_taxon{$node1} $dip_taxon{$node2}\n" if($verbose); 
+		print "MRCA $dip_MRCA{ $MRCA } $MRCA $dip_taxon{$node2}\n" if($verbose); 
 
+		# deprecated as it brakes the chain of diploid MRCAs
 		# but we should check whether they are sisters
-		if($dip_all_ancestors_string{$node1} eq $dip_all_ancestors_string{$node2}){
+		#if($dip_all_ancestors_string{$node1} eq $dip_all_ancestors_string{$node2}){
 			#print "MRCA $dip_taxon{ $node2 } $MRCA (sister)\n" if($verbose);
 			#$MRCA_computed{$node2} = 1;
-		}	
+		#}	
    }
 
 	# add also ancestor of last diploid in order
-	if($node == $#refDiploid-1 && !defined($MRCA_computed{$node2})){
+	if($taxon == $#sorted_diploid_taxa-1 && !defined($MRCA_computed{$node2})){
 		$MRCA = $node2->ancestor()->internal_id(); # fake MRCA for last diploid
 		$dip_MRCA{ $MRCA } = $dip_taxon{$node2};
       $MRCA_computed{$node2} = 1;
 		print "MRCA $dip_MRCA{ $MRCA } $MRCA (last)\n" if($verbose); 
 	}
 }
-
 
 ## search for MRCA nodes of any sister clades defined in polyconfig
 ## and save them in %clade_MRCA and %clade_ancestors
@@ -276,7 +299,7 @@ foreach my $bifur (keys(%polyconfig::sister_clades)){
 		}
 		$clade_MRCA{$sMRCA} = $sclade;
 		$clade_ancestors{$sMRCA} = \@sancestors;
-		print "MRCA $sclade $sMRCA $id2node{$sMRCA}\n" if($verbose);
+		print "MRCA $sclade $sMRCA\n" if($verbose);
 	}
 
 	# find MRCA of the two clades in this bifurcation,
@@ -321,7 +344,7 @@ foreach my $bifur (keys(%polyconfig::sister_clades)){
    }
 	$clade_MRCA{$sMRCA} = $bifur;
 	$clade_ancestors{$sMRCA} = \@cancestors;
-	print "MRCA $bifur $sMRCA $id2node{$sMRCA}\n" if($verbose);
+	print "MRCA $bifur $sMRCA\n" if($verbose);
 
 	# save list of nodes in hierarchical order
 	#push(@sorted_clade_MRCA_nodes,$sMRCA); # left in case useful later
