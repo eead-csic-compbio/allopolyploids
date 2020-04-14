@@ -31,12 +31,13 @@ if(!$test_output ||$test_output !~ /Usage/){
 
 ######################################################################
 
-my ($outfound,$outnode,$sorted_newick,$taxon,$node,$d,$header) = (0);
+my ($outfound,$nosave,$outnode,$sorted_newick,$taxon,$node,$d,$header) = (0,0);
 my ($non_diploid_labels);
 
-die "# usage: $0 <tree.newick>\n" if(!$ARGV[0]);
+die "# usage: $0 <tree.newick> [nosave]\n" if(!$ARGV[0]);
 
 my $pruned_tree_file = $ARGV[0].'.pruned';
+if($ARGV[1] && $ARGV[1] eq 'nosave'){ $nosave = 1 }
 
 # set outgroup root node
 my $outgroup_string = $polyconfig::ROOT;
@@ -144,3 +145,6 @@ foreach $taxon (@diploids){
 
 # terminate by printing out the Newick string 
 print "$newick_string\n";
+
+# delete pruned tree if not wanted
+unlink($pruned_tree_file) if($nosave);
