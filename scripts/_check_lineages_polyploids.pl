@@ -19,7 +19,7 @@ use Bio::Phylo::Forest::Tree;
 # allopolyploid species are found, all of them are labelled.
 # Please see and edit polyconfig.pm to define species, codes and rules. 
 #  
-# INPUT: i) multiple alignment (MSA, .fna) corresponding to ii) tree (.treefile.root.ph) 
+# INPUT: -t tree file (.treefile.root.ph) and optionally (-f multiple alignment file.fna)
 # OUTPUT: produces three output files with labelled sequences:
 # i) full MSA with sorted diploid/polyploid species, with gap-only rows, can be concatenated
 # ii) reduced MSA excluding gap-only rows
@@ -33,6 +33,8 @@ use Bio::Phylo::Forest::Tree;
 #
 # B Contreras-Moreira, R Sancho, EEAD-CSIC & EPS-UNIZAR 2018-20
 
+my $CHECKDIPEXE = "$Bin/_check_diploids.pl";
+
 my ($outfound,$outnode,$sorted_newick,$taxon,$node,$node_id,$child,$anc) = (0);
 my ($min_anc_dist,$min_desc_dist,$dist,$anc_dip_taxon,$desc_dip_taxon) = (0,0);
 my $MSAwidth = 0;
@@ -41,7 +43,7 @@ my ($d,$header,$node1,$node2,$taxon1,$taxon2,$bases,$lineage_code,$full_taxon);
 my ($poly_ancestor_MRCA,$desc_is_sister,$anc_is_sister,$next_MRCA);
 my (%length,%FASTA,%id2node,%dip_taxon,%MRCA_computed,%dip_ancestor);
 my (%dip_all_ancestors,%dip_all_ancestors_string,%diptaxon2node,%header2label);
-my ($MRCA,$diploid_MRCA,$diploid_MRCA_node,%dip_MRCA);
+my ($MRCA,$diploid_MRCA,$diploid_MRCA_node,%dip_MRCA,@sorted_diploid_taxa);
 my (@sorted_clade_MRCA_nodes,%clade_MRCA_nodes,%clade_MRCA,%clade_ancestors);
 
 my ($MSA_file,$tree_file,$use_labeled_polyploids,$verbose,%opts) = ('','',0,0);
@@ -112,6 +114,20 @@ if($MSA_file ne ''){
 	}
 	close(MSA); 
 }
+
+# get order of diploids nodes in stripped, ladderized tree
+open(CHECKDIPS,"$CHECKDIPEXE $tree_file nosave |") || 
+	die "# ERROR: cannot run $CHECKDIPEXE $tree_file nosave\n";
+while(my $line = <CHECKDIPS>){
+	next if($line =~ /^#/);
+	if($line =~ /^\(/){
+		while($line =~ /([^\(\);,]+)/g){
+			push(@sorted_diploid_taxa,$1);
+		}
+	}	
+}
+close(CHECKDIPS);
+print "# sorted diploids: ".join(',',@sorted_diploid_taxa)."\n" if($verbose);
 
 # ladderize/sort input tree 
 my $unsorted_input_tree = Bio::Phylo::IO->parse(
@@ -188,12 +204,12 @@ foreach $node (0 .. $#refDiploid-1){
 		$MRCA = get_MRCA( $dip_all_ancestors{$node1} , $dip_all_ancestors{$node2} ); 
 		$dip_MRCA{ $MRCA } = $dip_taxon{$node1};
 		$MRCA_computed{$node1} = 1;
-		print "MRCA $dip_MRCA{ $MRCA } $MRCA\n" if($verbose); 
+		print "MRCA $dip_MRCA{ $MRCA } $MRCA $dip_taxon{$node1} $dip_taxon{$node2}\n" if($verbose); 
 
 		# but we should check whether they are sisters
 		if($dip_all_ancestors_string{$node1} eq $dip_all_ancestors_string{$node2}){
-			print "MRCA $dip_taxon{ $node2 } $MRCA (sister)\n" if($verbose);
-			$MRCA_computed{$node2} = 1;
+			#print "MRCA $dip_taxon{ $node2 } $MRCA (sister)\n" if($verbose);
+			#$MRCA_computed{$node2} = 1;
 		}	
    }
 
@@ -202,7 +218,7 @@ foreach $node (0 .. $#refDiploid-1){
 		$MRCA = $node2->ancestor()->internal_id(); # fake MRCA for last diploid
 		$dip_MRCA{ $MRCA } = $dip_taxon{$node2};
       $MRCA_computed{$node2} = 1;
-		print "MRCA $dip_MRCA{ $MRCA } $MRCA\n" if($verbose); 
+		print "MRCA $dip_MRCA{ $MRCA } $MRCA (last)\n" if($verbose); 
 	}
 }
 
