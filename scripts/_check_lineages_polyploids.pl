@@ -403,7 +403,7 @@ foreach $taxon (@polyploids)
 		} 
 	}
 
-	# check closest diploid ancestor and descendant of this polyploid node
+	# check closest diploid/MRCA ancestor and descendant of this polyploid node
 	foreach $node1 (@nr_taxon_nodes){
 
 		($anc_dip_taxon,$desc_dip_taxon,$lineage_code) = ('-','-','-');
@@ -434,7 +434,7 @@ foreach $taxon (@polyploids)
 				last if($anc_is_sister == 1);
 			}
 
-			#otherwise check whether this node is a previously defined clade/diploid MRCA
+			# otherwise check whether this node is a previously defined clade/diploid MRCA
 			if(defined($clade_MRCA{ $node_id })){
             $poly_ancestor_MRCA = $node_id;
             $anc_dip_taxon = $clade_MRCA{ $node_id };
@@ -447,7 +447,7 @@ foreach $taxon (@polyploids)
 			}
 		}
 		print "anc_dip_taxon $anc_dip_taxon ($anc_is_sister)\n" if($verbose);		
-	
+		
 		# find the first descendant with max shared nodes which is either: 
 		# i) a MRCA of sister clades, ii) a diploid sister, iii) a MRCA between diploids
 		my (%total_shared_desc,%desc_sister, @sorted_taxa); 
@@ -461,8 +461,8 @@ foreach $taxon (@polyploids)
 			next if(!$dip_taxon{$node2} && !$clade_MRCA_nodes{$node2_id});
 
 			# a taxon cannot be both ancestor and descendant
-			next if($clade_MRCA{$node2_id} && $anc_dip_taxon eq $clade_MRCA{$node2_id});
-			next if($dip_taxon{$node2} && $anc_dip_taxon eq $dip_taxon{$node2});
+			#next if($clade_MRCA{$node2_id} && $anc_dip_taxon eq $clade_MRCA{$node2_id});
+			#next if($dip_taxon{$node2} && $anc_dip_taxon eq $dip_taxon{$node2});
 
 			# all ancestors are shared: polyploid (node1) and diploid (node2) are sisters
 			if($dip_taxon{$node2} &&
@@ -542,7 +542,14 @@ foreach $taxon (@polyploids)
 			$desc_sister{$desc_dip_taxon} == 1){
 			$desc_is_sister = 1;
 		}
-	
+
+      # in case ancestor and descendant are the same node
+      if($anc_dip_taxon eq $desc_dip_taxon && 
+				($anc_is_sister == 0 || $desc_is_sister == 0)){
+			$anc_is_sister = $desc_is_sister = 1;
+			print "anc_dip_taxon $anc_dip_taxon ($anc_is_sister) corrected\n" if($verbose);
+		}
+
 		$lineage_code = get_label_from_rules( $anc_dip_taxon, $desc_dip_taxon, 
 															$anc_is_sister, $desc_is_sister);
 
