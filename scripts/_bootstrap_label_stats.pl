@@ -77,7 +77,10 @@ foreach my $multifile (sort (@multiNewick)){
 		my $rooted_treefile = "$resultsdir/$count.root.ph";
 		system("$REROOTEXE $treefile > $rooted_treefile"); 
 
-		next if($rootonly == 1);
+		if($rootonly == 1){
+			$count++;
+			next;
+		}
 
 		# iii) relabel polyploid leaf (actually we don't care about relabelled tree) 
 		# and collect polyploid_taxon_label stats
