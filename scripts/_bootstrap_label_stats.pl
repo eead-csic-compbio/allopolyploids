@@ -32,7 +32,7 @@ my ($all_trees_dir,$rootonly,$taxon_label) = ('',0);
 if(!$ARGV[0]){ die "# usage: $0 <folder with multi-tree Newick files> [rootonly]\n" }
 else{ $all_trees_dir = $ARGV[0] }
 
-if($ARGV[1] eq 'rootonly'){ 
+if($ARGV[1] && $ARGV[1] eq 'rootonly'){ 
 	$rootonly = 1 
 }
 
