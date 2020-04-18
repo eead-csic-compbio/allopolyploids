@@ -6,6 +6,8 @@
 # iii) re-labels the polyploid leafs in the tree
 # iv) computes overall frequencies of polyploid labels
 #
+# If optional argument 'rootonly' is passed steps iii and iv are skipped
+#
 # Input trees are usually produced by IQ-TREE and have the 
 # extension .boottrees (see $EXT below)
 #
@@ -25,10 +27,16 @@ my $RELABELEXE = "$Bin/_check_lineages_polyploids.pl";
 
 #########################################################
 
-my ($all_trees_dir,$taxon_label);
+my ($all_trees_dir,$rootonly,$taxon_label) = ('',0);
 
-if(!$ARGV[0]){ die "# usage: $0 <folder with multi-tree Newick files>\n" }
+if(!$ARGV[0]){ die "# usage: $0 <folder with multi-tree Newick files> [rootonly]\n" }
 else{ $all_trees_dir = $ARGV[0] }
+
+if($ARGV[1] eq 'rootonly'){ 
+	$rootonly = 1 
+}
+
+print "# $0 $all_trees_dir $rootonly\n\n";
 
 # read all input files names
 opendir(ALL,$all_trees_dir) || die "# cannot list $all_trees_dir\n";
@@ -69,9 +77,10 @@ foreach my $multifile (sort (@multiNewick)){
 		my $rooted_treefile = "$resultsdir/$count.root.ph";
 		system("$REROOTEXE $treefile > $rooted_treefile"); 
 
+		next if($rootonly == 1);
+
 		# iii) relabel polyploid leaf (actually we don't care about relabelled tree) 
 		# and collect polyploid_taxon_label stats
-		#print "$RELABELEXE -t $rooted_treefile -l \n"; exit;
 		open(LABELSTATS,"$RELABELEXE -t $rooted_treefile -l|") ||
 			die "# cannot run $RELABELEXE -t $rooted_treefile -l\n";
 
@@ -81,7 +90,7 @@ foreach my $multifile (sort (@multiNewick)){
 				my @stats = split(/\t/,$line);
 				$taxon_label = $1;
 				foreach $col (1 .. scalar(keys(%COLLABEL))){
-					$boot_stats{$taxon_label}{$COLLABEL{$col}} += $stats[$col];
+					$boot_stats{$taxon_label}{$COLLABEL{$col}} += $stats[$col];#				}
 				}
 			}	
 		}
@@ -125,5 +134,5 @@ foreach my $multifile (sort (@multiNewick)){
 		print "$stats_line\n";	
 	}
 
-	#last; # stop after 1 gene
+	#last; # stop after 1 gene for debugging
 }
