@@ -45,7 +45,7 @@ if(($opts{'h'})||(scalar(keys(%opts))==0))
 	print "-O fraction of block covered by outgroup/polyploids  ".
 				"(optional, default:$min_block_overlap)\n";
 	print "-R remove short polyploid isoforms using regex       ".
-				"(optional, example: -R 'c\d+_g\d+_i')\n";
+				"(optional, example: -R 'c\\d+_g\\d+_i')\n";
 	print "-t TSV file with pairs long species name, abbrev     ".
 				"(optional, example line: Oryza sativa\tOsat)\n";
 	exit(0);
