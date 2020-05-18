@@ -20,7 +20,7 @@ my $FASTATtu  = 'Triticum_turgidum.Svevo.v1.cdna.all.fa';
 my $aligndir  = '01_align/';
 my $clusterdir= 'clusters/';
 
-my $MSAexe= 'mafft'; # add full path if necessary
+my $MSAexe= 'mafft --auto '; # add full path if necessary
 
 # add 4-letter abbreviations
 # see https://science.sciencemag.org/content/345/6194/1250092.full
@@ -53,7 +53,8 @@ opendir(BLASTDIR,$blastdir) || die "# cannot list $blastdir\n";
 my @files = grep{/\.fa/} readdir(BLASTDIR);
 closedir(BLASTDIR);
 
-my ($qseqid,$sseqid,$pident,$len,$mism,$gap,$qstart,$qend,$sstart,$send,$eval,$bit);
+my ($qseqid,$sseqid,$pident,$len,$mism,$gap);
+my ($qstart,$qend,$sstart,$send,$eval,$bit);
 
 foreach my $file (@files){
 
@@ -65,7 +66,8 @@ foreach my $file (@files){
 	while(<BLAST>){
 		#Hv_MLOC_44488.1 TRITD7Av1G247000.2      95.522  67      3       0       1497    1563    1404  1470     1.08e-21        108
 		chomp:
-		($qseqid,$sseqid,$pident,$len,$mism,$gap,$qstart,$qend,$sstart,$send,$eval,$bit) = split(/\t/,$_);
+		($qseqid,$sseqid,$pident,$len,$mism,$gap,
+			$qstart,$qend,$sstart,$send,$eval,$bit) = split(/\t/,$_);
 		$stats{$sseqid}{'tot'}++;
 		$stats{$sseqid}{'bit'}+=$bit;
 	}
@@ -107,12 +109,14 @@ foreach my $file (@files){
 
 	if($A || $B){
 		print CLUSTER ">$A\_Ttur\n$seqs{$A}\n" if($A ne '' && $seqs{$A});
-		print CLUSTER ">$B\_Ttur\n$seqs{$B}\n" if($B ne '' && $seqs{$B});	
+		if($B ne $A && $B ne '' && $seqs{$B}){
+			print CLUSTER ">$B\_Ttur\n$seqs{$B}\n";
+		}	
 	}
 	close(CLUSTER);
 	
 	# align seqs
-	system("$MSAexe -i $clusterdir$file > $aligndir$file");
+	system("$MSAexe  $clusterdir$file > $aligndir$file");
 
 	# gauge alignment width
 	my $width=0;
