@@ -20,7 +20,7 @@ my $FASTATtu  = 'Triticum_turgidum.Svevo.v1.cdna.all.fa';
 my $aligndir  = '01_align/';
 my $clusterdir= 'clusters/';
 
-my $clustalexe= 'clustalo'; # add full path if necessary
+my $MSAexe= 'mafft'; # add full path if necessary
 
 # add 4-letter abbreviations
 # see https://science.sciencemag.org/content/345/6194/1250092.full
@@ -112,8 +112,7 @@ foreach my $file (@files){
 	close(CLUSTER);
 	
 	# align seqs
-	system("$clustalexe -i $clusterdir$file -o $aligndir$file ".
-				" --dealign --output-order=input-order --force ");
+	system("$MSAexe -i $clusterdir$file > $aligndir$file");
 
 	# gauge alignment width
 	my $width=0;
