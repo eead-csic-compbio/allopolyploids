@@ -77,6 +77,12 @@ foreach my $multifile (sort (@multiNewick)){
 		my $rooted_treefile = "$resultsdir/$count.root.ph";
 		system("$REROOTEXE $treefile > $rooted_treefile"); 
 
+		# check rooted tree is not empty
+		if(-z $rooted_treefile) {
+			warn "# skip $treefile\n";
+			next; 
+		} 
+
 		if($rootonly == 1){
 			$count++;
 			next;
@@ -84,7 +90,7 @@ foreach my $multifile (sort (@multiNewick)){
 
 		# iii) relabel polyploid leaf (relabelled tree can be used for QC) 
 		# and collect polyploid_taxon_label stats
-		open(LABELSTATS,"$RELABELEXE -t $rooted_treefile -l|") ||
+		open(LABELSTATS,"$RELABELEXE -t $rooted_treefile -l |") ||
 			die "# cannot run $RELABELEXE -t $rooted_treefile -l\n";
 
 		while(my $line = <LABELSTATS>){ 
