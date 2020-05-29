@@ -82,7 +82,7 @@ foreach my $multifile (sort (@multiNewick)){
 			next;
 		}
 
-		# iii) relabel polyploid leaf (actually we don't care about relabelled tree) 
+		# iii) relabel polyploid leaf (relabelled tree can be used for QC) 
 		# and collect polyploid_taxon_label stats
 		open(LABELSTATS,"$RELABELEXE -t $rooted_treefile -l|") ||
 			die "# cannot run $RELABELEXE -t $rooted_treefile -l\n";
