@@ -134,8 +134,16 @@ while(my $line = <CHECKDIPS>){
 	}	
 }
 close(CHECKDIPS);
+
+# make sure $CHECKDIPEXE returned a valid tree
+if(scalar(@sorted_diploid_taxa) == 0) {	
+	die "# ERROR: cannot continue with $tree_file , probably failed midpoint-root\n";
+}
+
 printf("# sorted diploids (%d): %s\n\n",
 	scalar(@sorted_diploid_taxa),join(',',@sorted_diploid_taxa)) if($verbose);
+
+
 
 # ladderize/sort input tree 
 my $unsorted_input_tree = Bio::Phylo::IO->parse(
