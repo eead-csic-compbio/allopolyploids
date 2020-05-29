@@ -88,8 +88,7 @@ foreach my $multifile (sort (@multiNewick)){
 			next;
 		}
 
-		# iii) relabel polyploid leaf (relabelled tree can be used for QC) 
-		# and collect polyploid_taxon_label stats
+		# iii) relabel polyploid leaf and collect polyploid_taxon_label stats
 		open(LABELSTATS,"$RELABELEXE -t $rooted_treefile -l |") ||
 			die "# cannot run $RELABELEXE -t $rooted_treefile -l\n";
 
@@ -99,12 +98,35 @@ foreach my $multifile (sort (@multiNewick)){
 				my @stats = split(/\t/,$line);
 				$taxon_label = $1;
 				foreach $col (1 .. scalar(keys(%COLLABEL))){
-					$boot_stats{$taxon_label}{$COLLABEL{$col}} += $stats[$col];#				}
+					$boot_stats{$taxon_label}{$COLLABEL{$col}} += $stats[$col];
 				}
 			}	
 		}
 		close(LABELSTATS);
-		
+	
+		# iv) QC: make sure relabelled tree contains new labels,
+		# else remove this tree files (.ph, .root.ph, .root.label.ph) 
+		my $relabelled_treefile = $rooted_treefile;
+		$relabelled_treefile =~ s/.root.ph/.root.label.ph/;
+
+		if(-z $relabelled_treefile) {
+			
+			my $n_labels = 0;
+			open(RELABELLEDTREE,"<",$relabelled_treefile);
+			while(my $newick = <RELABELLEDTREE>) {
+				if($newick =~ /\w+_[A-Z]_[A-Z]/g) {
+					$n_labels++;
+				} 
+			}
+			close(RELABELLEDTREE);
+
+			if($n_labels == 0) {
+				warn "# no new label added to $treefile, remove it\n";
+				unlink($treefile, $rooted_treefile, $relabelled_treefile);
+			}
+		}
+	
+		# this count is used to named individual tree files
 		$count++;
 	}
 	close(MULTITREE);
