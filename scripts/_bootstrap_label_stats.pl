@@ -79,6 +79,7 @@ foreach my $multifile (sort (@multiNewick)){
 
 		# check rooted tree is not empty
 		if(-z $rooted_treefile) {
+			unlink($rooted_treefile);
 			warn "# skip $treefile\n";
 			next; 
 		} 
@@ -108,8 +109,8 @@ foreach my $multifile (sort (@multiNewick)){
 		# else remove this tree files (.ph, .root.ph, .root.label.ph) 
 		my $relabelled_treefile = $rooted_treefile;
 		$relabelled_treefile =~ s/.root.ph/.root.label.ph/;
-
-		if(-z $relabelled_treefile) {
+		
+		if(-s $relabelled_treefile) {
 			
 			my $n_labels = 0;
 			open(RELABELLEDTREE,"<",$relabelled_treefile);
@@ -124,8 +125,11 @@ foreach my $multifile (sort (@multiNewick)){
 				warn "# no new label added to $treefile, remove it\n";
 				unlink($treefile, $rooted_treefile, $relabelled_treefile);
 			}
+		} else {
+			# label.ph was not even produced for these, remove them
+			unlink($treefile, $rooted_treefile);	
 		}
-	
+			
 		# this count is used to named individual tree files
 		$count++;
 	}
