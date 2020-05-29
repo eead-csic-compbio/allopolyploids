@@ -67,7 +67,10 @@ if($outfound == 0) {
 }
 
 # root in outgroup
-$intree->reroot_at_midpoint($outnode);
+my $output = $intree->reroot_at_midpoint($outnode);
+if($output == 0) {
+  die "# ERROR: cannot midpoint-root input tree $ARGV[0]\n";	
+}
 
 # copy rooted tree to a new Bio::Phylo::IO object, which supports node laddering
 my $sorted_tree = Bio::Phylo::IO->parse(
