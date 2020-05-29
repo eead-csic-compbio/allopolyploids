@@ -42,7 +42,10 @@ if($outfound == 0) {
 }
 
 # root in outgroup and sort in increasing order
-$intree->reroot_at_midpoint($outnode);
+my $output = $intree->reroot_at_midpoint($outnode);
+if($output == 0) {
+	die "# cannot midpoint-root input tree $ARGV[0]\n";
+}
 
 # sort nodes in defined order and print
 my $unsorted_tree = Bio::Phylo::IO->parse(
