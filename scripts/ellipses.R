@@ -16,7 +16,7 @@
 
 #column 1 = ID_allele
 #column 2 = label given to allele according to the "nearest diploid algorithm"
-#column 3,4,...,(b+2) = number of bootstrap replicates grafted in each of "b" 
+#column 3,4,...,(j+2) = number of bootstrap replicates grafted in each of "j" 
 #                       branches of the diploid species tree
 
 args = commandArgs(trailingOnly=TRUE)
