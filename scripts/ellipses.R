@@ -22,7 +22,7 @@
 args = commandArgs(trailingOnly=TRUE)
 
 if(length(args) < 3) {
-	stop("# usage: ellipses.R <perc cutoff> <infile> <outfile>.n", call.=FALSE)
+	stop("# usage: ./ellipses.R <perc cutoff> <infile> <outfile>.n", call.=FALSE)
 } else {
 	threshold.1 = as.numeric( args[1] ) # threshold value in % for ellipse construction
 	input.name = args[2] 
