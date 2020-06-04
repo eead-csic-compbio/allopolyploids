@@ -2,7 +2,7 @@
 
 # This script implements the subgenome assignment algorithm
 #
-# Example call: ellipses.R 10 Brachypodium_ellipses_PC1jun2020.tsv ellipse.output.txt
+# Example call: ./ellipses.R 10 Brachypodium_ellipses_PC1jun2020.tsv ellipse.output.txt
 
 # Tested in R (version 3.5.1; 2018-07-02)
 # By: Antonio Díaz-Pérez (june 03, 2020)
