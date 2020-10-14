@@ -2,10 +2,10 @@
 
 # This script implements the subgenome assignment algorithm
 #
-# Example call: ./ellipses.R 10 Brachypodium_ellipses_PC1jun2020.tsv ellipse.output.txt
+# Example call: ./homeolog_distribution.R 10 INPUT_homeolog_distribution.tsv output.txt
 
 # Tested in R (version 3.5.1; 2018-07-02)
-# By: Antonio Díaz-Pérez (june 03, 2020)
+# By: Antonio DÃ­az-PÃ©rez (june 03, 2020)
 
 # FORMAT OF TEXT INPUT FILE:
 #***************************
@@ -15,14 +15,14 @@
 # For row 2,...,(n+1), where "n" is the number of genes:
 
 #column 1 = ID_allele
-#column 2 = label given to allele according to the "nearest diploid algorithm"
+#column 2 = label given to allele according to the "Nearest Diploid Species Node" algorithm
 #column 3,4,...,(j+2) = number of bootstrap replicates grafted in each of "j" 
 #                       branches of the diploid species tree
 
 args = commandArgs(trailingOnly=TRUE)
 
 if(length(args) < 3) {
-	stop("# usage: ./ellipses.R <perc cutoff> <infile> <outfile>.n", call.=FALSE)
+	stop("# usage: ./homeolog_distribution.R <perc cutoff> <infile> <outfile>.n", call.=FALSE)
 } else {
 	threshold.1 = as.numeric( args[1] ) # threshold value in % for ellipse construction
 	input.name = args[2] 
