@@ -2,7 +2,6 @@
 
 This pipeline was designed by Ruben Sancho, Antonio Diaz, Pilar Catalan and Bruno Contreras Moreira for the selection of transcripts for phylogeny reconstruction of allopolyploid species. It uses what we call the **nearest diploid species node algorithm**. We tested it with diploid and polyploid species of the genus Brachypodium, for which we had data obtained in collaboration with David des Marais. The ideas and the code can be taylored for other clades as well.
 
-
 ## 1) Core transcripts expressed in all Brachypodium species plus two outgroups: rice & barley
 
 This first step requires https://github.com/eead-csic-compbio/get_homologues and the set of transcripts in folder [genome_transcripts](./genome_transcripts), most of them assembled de novo with https://github.com/trinityrnaseq/trinityrnaseq . With the following command we request clusters with sequence identity >= 80% and 75% coverage of the shortest sequence:
