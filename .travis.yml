@@ -7,7 +7,7 @@ perl:
 before_install:
   - "sudo apt-get update"
   - "sudo apt-get install -y libdb-dev"
-  - "git clone git://github.com/tjunier/newick_utils.git && cd newick_utils && autoreconf -fi && ./configure && make && sudo make install"
+  - "wget newick-utils-1.6-Linux-x86_64-enabled-extra.tar.gz && tar xvfz newick-utils-1.6-Linux-x86_64-enabled-extra.tar.gz && cd newick_utils-1.6 && ./configure && make && sudo make install"
   - "cpanm --sudo -v --installdeps --notest --cpanfile cpanfile ."
 
 script:
