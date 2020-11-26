@@ -8,7 +8,7 @@ before_install:
   - "sudo apt-get update"
   - "sudo apt-get install -y libdb-dev"
   - "cpanm --sudo -v --installdeps --notest --cpanfile cpanfile ."
-  - "git clone git://github.com/tjunier/newick_utils.git && cd newick-utilities && ./configure && make && sudo make install"
+  - "git clone git://github.com/tjunier/newick_utils.git && cd newick-utils && ./configure && make && sudo make install"
 
 script:
   - "make test"
