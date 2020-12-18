@@ -15,26 +15,30 @@ our @EXPORT = qw(
 
 # Abbreviated names of diploid species as found in FASTA and tree files.
 # See %sister_clades below for how to define sister species.
-our @diploids = qw( Osat Hvul Bdis Tura Tmon Asha Atau Aspe ); 
+our @diploids = qw( Osat Hvul Bsta Bdis Barb Bpin Bsyl ); 
 
 # note these are diploids as well; hash instead of list
 our %outgroups = ( 
 'Osat',1, 
-'Hvul',1,
-'Bdis',1 
+'Hvul',1 
 );
 
 # diploid used to root trees 
 our $ROOT = 'Osat';
 
 # Abbreviated names of polyploid species as found in FASTA and tree files.
-our @polyploids = ('Taes', 'Ttur');
+our @polyploids = ('Bmex', 'Bboi', 'Bret', 'Bhyb', 'Brup', 'Bpho', 'B422');
 
 # Abbreviated names of labelled polyploid sequences as found in FASTA and tree files.
 # Note that the capital letters correpond to @CODES below
 our @polyploids_labelled = (
-   'Taes_A','Taes_B','Taes_C','Taes_D','Taes_E','Taes_F','Taes_G','Taes_H','Taes_I',
-   'Ttur_A','Ttur_B','Ttur_C','Ttur_D','Ttur_E','Ttur_F','Ttur_G','Ttur_H','Ttur_I'
+   'Bmex_A','Bmex_B','Bmex_C','Bmex_D','Bmex_E','Bmex_F','Bmex_G','Bmex_H','Bmex_I',
+   'Bboi_A','Bboi_B','Bboi_C','Bboi_D','Bboi_E','Bboi_F','Bboi_G','Bboi_H','Bboi_I',
+   'Bret_A','Bret_B','Bret_C','Bret_D','Bret_E','Bret_F','Bret_G','Bret_H','Bret_I',
+   'Bhyb_A','Bhyb_B','Bhyb_C','Bhyb_D','Bhyb_E','Bhyb_F','Bhyb_G','Bhyb_H','Bhyb_I',
+   'Brup_A','Brup_B','Brup_C','Brup_D','Brup_E','Brup_F','Brup_G','Brup_H','Brup_I',
+   'Bpho_A','Bpho_B','Bpho_C','Bpho_D','Bpho_E','Bpho_F','Bpho_G','Bpho_H','Bpho_I',
+   'B422_A','B422_B','B422_C','B422_D','B422_E','B422_F','B422_G','B422_H','B422_I'
 );
 
 # Optional custom definition of clades that contain >1 diploids, if any.
@@ -44,13 +48,13 @@ our @polyploids_labelled = (
 # # ii) MRCA for each explicitely defined clade (there should be two)
 # # finally the arrays contain lists of species in each clade, should be diploid
 our %sister_clades = ();
-$sister_clades{'MRCAAeTr'}{'MRCAAe'} = ['Asha','Atau','Aspe']; # clade 1
-$sister_clades{'MRCAAeTr'}{'MRCATr'} = ['Tura','Tmon'];        # clade 2
+$sister_clades{'MRCABsylBpin'}{'MRCA1'} = ['Bsyl','Bpin']; # clade 1
+$sister_clades{'MRCABsylBpin'}{'MRCA2'} = ['Bsyl','Bpin']; # clade1 again with a different name, hack
 
 # Default values for paremeters controlling how aligned blocks of sequences are
 # produced in script _trim_MSA_block.pl
-our $MINBLOCKLENGTH = 200;
-our $MAXGAPSPERBLOCK = 200; # tolerated gaps for diploids in block
+our $MINBLOCKLENGTH = 100;
+our $MAXGAPSPERBLOCK = 100; # tolerated gaps for diploids in block
 our $MINBLOCKOVERLAP = 0.50; # fraction of diploid block covered by outgroups & polyploids
 
 # Optional user-defined contribution of diploid species to block width calculations
@@ -128,45 +132,53 @@ sub get_label_from_rules {
 	## ancestor is sister or descendant is empty, 
 	## only ancestor diploid is looked up
 	if($anc_is_sister == 1 || $desc_dip_taxon eq ''){
-		if($anc_dip_taxon eq 'Aspe'){ $lineage_code = 'C' }
-		elsif($anc_dip_taxon eq 'Asha'){ $lineage_code = 'E' }
-		elsif($anc_dip_taxon eq 'Atau'){ $lineage_code = 'F' }
-		elsif($anc_dip_taxon eq 'Tmon'){ $lineage_code = 'H' }
-		elsif($anc_dip_taxon eq 'Tura'){ $lineage_code = 'I' }
+		if($anc_dip_taxon eq 'Bsta'){ $lineage_code = 'B' }
+		elsif($anc_dip_taxon eq 'Bdis'){ $lineage_code = 'D' }
+		elsif($anc_dip_taxon eq 'Barb'){ $lineage_code = 'F' }
+		elsif($anc_dip_taxon eq 'Bsyl'){ $lineage_code = 'H' }
+		elsif($anc_dip_taxon eq 'Bpin'){ $lineage_code = 'I' }
 	}
 	else { ## both ancestor/descendant diploids/clades are considered
 
-		if($anc_dip_taxon eq 'Hvul' && $desc_dip_taxon eq 'MRCAAeTr'){ 
+		if($anc_dip_taxon eq 'Hvul' && $desc_dip_taxon eq 'Bsta'){ 
 			$lineage_code = 'A' 
 		}
-		elsif($anc_dip_taxon eq 'MRCAAeTr' && $desc_dip_taxon eq 'MRCAAe'){ 
-			$lineage_code = 'B' 
+		elsif($anc_dip_taxon eq 'Bsta' && $desc_dip_taxon eq 'Bdis'){ 
+			$lineage_code = 'C' 
 		}
-		elsif($anc_dip_taxon eq 'MRCAAeTr' && $desc_dip_taxon eq 'MRCATr'){ 
-			$lineage_code = 'G' 
+		elsif($anc_dip_taxon eq 'Bdis' && $desc_dip_taxon eq 'Barb'){ 
+			$lineage_code = 'E' 
 		}
-		elsif($anc_dip_taxon eq 'MRCAAe' || $anc_dip_taxon eq 'Aspe'){
-			if($desc_dip_taxon eq 'Asha' || $desc_dip_taxon eq 'Atau'){ 
-				$lineage_code = 'D' 
-			}
+		elsif($anc_dip_taxon eq 'Barb' && $desc_dip_taxon eq 'MRCABsylBpin'){
+			$lineage_code = 'G'
 		}
-      elsif($anc_dip_taxon eq 'MRCATr' && $desc_dip_taxon eq 'Tura'){
-            $lineage_code = 'I'
-		}
-      elsif($anc_dip_taxon eq 'MRCATr' && $desc_dip_taxon eq 'Tmon'){
+      elsif($anc_dip_taxon eq 'MRCABsylBpin' && $desc_dip_taxon eq 'Bsyl'){
             $lineage_code = 'H'
       }
-      elsif($anc_dip_taxon eq 'Atau' && $desc_dip_taxon eq 'Asha'){
-         $lineage_code = 'E'
+      elsif($anc_dip_taxon eq 'MRCABsylBpin' && $desc_dip_taxon eq 'Bpin'){
+            $lineage_code = 'I'
       }
-		elsif($anc_dip_taxon eq 'Asha' && $desc_dip_taxon eq 'Atau'){ 
-			$lineage_code = 'F' 
-		}
-      elsif($anc_dip_taxon eq 'Tura' && $desc_dip_taxon eq 'Tmon'){
+      elsif($anc_dip_taxon eq 'Bsyl' && $desc_dip_taxon eq 'Bpin'){
+         $lineage_code = 'I'
+      }
+      elsif($anc_dip_taxon eq 'Bpin' && $desc_dip_taxon eq 'Bsyl'){
          $lineage_code = 'H'
       }
-      elsif($anc_dip_taxon eq 'Tmon' && $desc_dip_taxon eq 'Tura'){
-         $lineage_code = 'I'
+
+
+		# swapped Barb and Bsyl/Bpin
+      elsif($anc_dip_taxon eq 'MRCABsylBpin' || $anc_dip_taxon eq 'Bpin'
+				|| $anc_dip_taxon eq 'Bsyl'){
+         if($desc_dip_taxon eq 'Barb'){
+            $lineage_code = 'F'
+         }
+		}
+
+		 elsif($anc_dip_taxon eq 'Bdis'){
+         if($desc_dip_taxon eq 'MRCABsylBpin' || $desc_dip_taxon eq 'Bpin' 
+				|| $desc_dip_taxon eq 'Bsyl'){
+            $lineage_code = 'E'
+         }
       }
 
 	}
