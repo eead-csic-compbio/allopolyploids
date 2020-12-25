@@ -602,7 +602,7 @@ do for f in *.ph;
 do (cd $d && cat $f | sed 's/;/;\n/g' > $d.boottrees);
 done; done
 ```
-We move the concatenated boottrees files to new directory 2_7_iqtree_boottrees_1000__congruent_round_2_concatenate
+We move the concatenated boottrees files to new directory 2_7_iqtree_boottrees_1000_congruent_round_2_concatenate
 ```
 for d in *.relabelled;
 do for f in *.boottrees;
@@ -635,7 +635,7 @@ do for f in *.root.ph;
 do shuf -n 100 -e $d/$f | xargs cp --parents -t ../2_8_iqtree_boottrees_100_random_congruent_round_2;
 done; done
 ```
-We check the amount of boottrees into 2_8_iqtree_boottrees_100_random_congruent_round_2 directory
+We check the amount of boottrees in 2_8_iqtree_boottrees_100_random_congruent_round_2 directory
 ```
 ls -R | grep -c "root.ph"
 
