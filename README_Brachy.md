@@ -348,7 +348,7 @@ You can run it using a bash script and nohup:
 nohup iqtree_non_parametric_bootstrapping_1000.sh > nohup_bootstrapping_1000.txt &
 ```
 
-These .boottrees files will be save in the folder 2_2_iqtree_boottrees_1000.
+These .boottrees files will be saved in the folder 2_2_iqtree_boottrees_1000.
 
 
 ## 2.3) Extract, root and sort the bootstrap trees (boottrees) from the 1000 bootstrapping files
