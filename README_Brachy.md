@@ -661,7 +661,7 @@ do (cd $d && cat $f | sed 's/;/;\n/g' > $d.boottrees);
 done; done
 ```
 
-We move the new boottrees files to th new 2_9_iqtree_boottrees_100_random_congruent_round_2_concatenate directory
+We move the new boottrees files to the new 2_9_iqtree_boottrees_100_random_congruent_round_2_concatenate directory
 ```
 for d in *.relabelled;
 do for f in *.boottrees;
