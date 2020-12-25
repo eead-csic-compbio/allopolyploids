@@ -24,7 +24,7 @@ args = commandArgs(trailingOnly=TRUE)
 if(length(args) < 3) {
 	stop("# usage: ./homeolog_distribution.R <perc cutoff> <infile> <outfile>.n", call.=FALSE)
 } else {
-	threshold.1 = as.numeric( args[1] ) # threshold value in % for ellipse construction
+	threshold.1 = as.numeric( args[1] ) # threshold value in % for cluster construction
 	input.name = args[2] 
 	output.name = args[3]
 }
