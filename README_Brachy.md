@@ -200,7 +200,7 @@ for FILE in *root.ph;
 do perl scripts/_check_diploids.pl $FILE;
 done > diploids.log
 ```
-The tool also create the pruned treer files (trees with only diploid species). These files can be save in the empty folder 03_iqtree_treefiles/rooted_pruned_trees if you want to review them.
+The tool also create the pruned tree files (trees with only diploid species. Not save in this example).
 
 **Note:** There are 1924 pruned trees (and 1925 rooted trees) because one tree show the error "Calling node's branch length will be zero (set -FORCE to force)--exiting". This file starts with "12615"
 
