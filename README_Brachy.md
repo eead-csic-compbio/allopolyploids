@@ -331,7 +331,7 @@ Some pruned MSAs (.extract_Bmex_A.fna, ...) will not include any polyploid. Thus
 grep -E 'Bmex|Bboi|Bret|Bhyb|Brup|Bpho|B422' *.fna | cut -d":" -f1 > list_files_extract_with_polyploid.txt
 ```
 
-Move pruned FASTA files with homeologs to one_allopolyploid_plus_diploids/2_1_files_extract_with_polyploid directory (now empty)
+Move pruned FASTA files with diploids + outgroups + one homeolog to one_allopolyploid_plus_diploids/2_1_files_extract_with_polyploid directory (now empty)
 ```
 ls *.fna | grep -f list_files_extract_with_polyploid.txt | xargs mv -t files_extract_with_polyploid
 ```
