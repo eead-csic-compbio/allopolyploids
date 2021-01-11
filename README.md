@@ -12,8 +12,26 @@ Rubén Sancho, Luis A. Inda, Antonio Díaz-Pérez, David L. Des Marais, Sean Gor
 
 ## Data set and abbreviations
 
-Brachypodium RNA-seq data were deposited at ENA (European Nucleotide Archive; https://www.ebi.ac.uk/ena) with run accessions numbers ERR3633153 (B. arbuscula), ERR3634426 (B. boissieri), ERR3634464 (B. hybridum), ERR3634593 (B. mexicanum), ERR3634717 (B. phoenicoides Bpho422), ERR3634894 (B. phoenicoides Bpho6), ERR3634970 (B. pinnatum), ERR3636695 (B. retusum), ERR3636791 (B. rupestre) and ERR3636828 (B. stacei). B. sylvaticum RNA-seq data of the accession Brasy-Esp were obtained from the study by Fox et al., 2013. Transcriptomic data was also retrieved for the relatively close Oryza sativa (SRX738077) and Hordeum vulgare (ERR159679) outgroup species that were used to root the phylogenetic Brachypodium trees and to provide a stem branch for the grafting of ancestral homeologs/subgenomes.
+Brachypodium RNA-seq data were deposited at the [European Nucleotide Archive](https://www.ebi.ac.uk/ena) with run accessions numbers:
 
+* ERR3633153 (B. arbuscula)
+* ERR3634426 (B. boissieri)
+* ERR3634464 (B. hybridum)
+* ERR3634593 (B. mexicanum) *
+* ERR3634717 (B. phoenicoides Bpho422)
+* ERR3634894 (B. phoenicoides Bpho6)
+* ERR3634970 (B. pinnatum)
+* ERR3636695 (B. retusum)
+* ERR3636791 (B. rupestre) 
+* ERR3636828 (B. stacei)
+
+B. sylvaticum RNA-seq data of accession Brasy-Esp were obtained from the study by [Fox et al., 2013](https://doi.org/10.3732/apps.1200011). 
+
+Transcriptomic data was also retrieved for the outgroup species Oryza sativa (SRX738077) and Hordeum vulgare (ERR159679), which were used to root the phylogenetic Brachypodium trees and to provide a stem branch for the grafting of ancestral homeologs/subgenomes.
+
+The following abbreviations were used:
+
+```
 Bmex --> B.mexicanum
 Bret --> B.retusum
 Bboi --> B.boissieri
@@ -28,6 +46,7 @@ Bpin --> B.pinnatum
 Bsyl --> B.sylvaticum
 Osat --> Oryza sativa
 Hvul --> Hordeum vulgare
+```
 
 ## Run Get_homologues-est to construt the core gene/transcript alignments
 
