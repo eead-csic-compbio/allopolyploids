@@ -7,5 +7,7 @@ BEGIN { use_ok('polyutils') };
 
 BEGIN { use_ok('polyconfig') };
 
-ok( eval{ `perl scripts/_check_lineages_polyploids.pl -t scripts/controls/wheat.ph` } =~ 
-	/[1\s]{9}/ , '/_check_lineages_polyploids.pl' );
+ok( eval{ `perl scripts/_check_lineages_polyploids.pl -t scripts/controls/brachy.ph` } =~ 
+	/[1\s]{9}/ , '_check_lineages_polyploids.pl standalone' );
+
+
