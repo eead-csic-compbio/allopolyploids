@@ -6,15 +6,20 @@ use warnings;
 # add the best Triticum turgidum (Ttur) sequences A & B from Ensembl Plants cDNA and 
 # build multiple sequence alignments.
 
-# B Contreras-Moreira, R Sancho, EEAD-CSIC & EPS-UNIZAR 2020
+# This script was only used for the wheat benchmark. It requires:
+# 
+# i) the software mafft , see https://mafft.cbrc.jp/alignment/software/linux.html 
+# ii) file $FASTATtu, get it from 
+#     ftp://ftp.ensemblgenomes.org/pub/release-46/plants/fasta/triticum_turgidum/cdna/
+
+# B Contreras-Moreira, R Sancho, EEAD-CSIC & EPS-UNIZAR 2020-1
 
 my ($seqid,$sp,$name,$shortsp,%seqs);
 
 # https://science.sciencemag.org/content/345/6194/1250092.full
 my $fastadir  = 'Marcussen_et_al_2014/275genes_final_alignments/';
-my $blastdir  = 'blast/Marcussen_et_al_2014/275genes_final_alignments/';
+my $blastdir  = 'Marcussen_et_al_2014/275genes_final_alignments/';
 
-# ftp://ftp.ensemblgenomes.org/pub/release-46/plants/fasta/triticum_turgidum/cdna/
 my $FASTATtu  = 'Triticum_turgidum.Svevo.v1.cdna.all.fa';
 
 my $aligndir  = '01_align/';
@@ -23,7 +28,6 @@ my $clusterdir= 'clusters/';
 my $MSAexe= 'mafft --auto '; # add full path if necessary
 
 # add 4-letter abbreviations
-# see https://science.sciencemag.org/content/345/6194/1250092.full
 my %name2sp = (
 	'Ta'  => 'Taes',
 	'Tm'  => 'Tmon',
@@ -40,7 +44,7 @@ my %name2sp = (
 my $ADDMISSINGSEQS = 0; 
 
 # read Ttu sequences
-open(FASTA,"<",$FASTATtu) ||die "#cannot read $FASTATtu\n";
+open(FASTA,"<",$FASTATtu) ||die "# cannot read $FASTATtu\n";
 while(<FASTA>){
    next if(/^$/);
    chomp;
