@@ -12,7 +12,7 @@ R Sancho, LA Inda, A Díaz-Pérez, DL Des Marais, SP Gordon, J Vogel, B Contrera
 
 ### Software dependencies
 
-Note The instructions below require **wget** and **curl** on your system.
+Note: the instructions below require **wget**, **curl** and **parallel** on your system.
 
 In Debian-like systems like Ubuntu please do:
 
@@ -83,12 +83,12 @@ Osat --> Oryza sativa
 Hvul --> Hordeum vulgare
 ```
 
-### Run Get_homologues-est to construt the core gene/transcript alignments
+### Run GET_HOMOLOGUES-EST to construct the core gene/transcript alignments
 
 This first step requires https://github.com/eead-csic-compbio/get_homologues and the set of transcripts in folder genome_transcripts, most of them assembled de novo with https://github.com/trinityrnaseq/trinityrnaseq . With the following command we request clusters with sequence identity >= 80% and 75% coverage of the shortest sequence
 
 ```
-get_homologues/get_homologues-est.pl -d genome_transcripts \
+bin/get_homologues/get_homologues-est.pl -d genome_transcripts \
 	-m cluster -I genome_transcripts/species.list -M -A -S 80 \
 	&> gen.M.A.S80.core.cluster.log
 ```
