@@ -6,9 +6,23 @@ The protocol is explained in detail in the article (publication in process) titl
 
 PhyloSD: Phylogenomic detection of known and ghost subgenomes of polyploid plants
 
-Rubén Sancho, Luis A. Inda, Antonio Díaz-Pérez, David L. Des Marais, Sean Gordon, John Vogel, Bruno Contreras-Moreira, Pilar Catalán
+R Sancho, LA Inda, A Díaz-Pérez, DL Des Marais, SP Gordon, J Vogel, B Contreras-Moreira, P Catalán
 
-## 0) Pre-processing of the data set
+## 0) Pre-processing of the data set and installation of dependencies
+
+### Software dependencies
+
+In Debian-like systems like Ubuntu please do:
+
+```
+# Perl dependencies
+sudo apt-get install -y libdb-dev
+curl -L https://cpanmin.us | perl - --sudo App::cpanminus
+cpanm --sudo -v --installdeps --notest --cpanfile cpanfile .
+
+# third-party binaries
+make install
+```
 
 ### Data set and abbreviations
 
