@@ -12,7 +12,7 @@ R Sancho, LA Inda, A Díaz-Pérez, DL Des Marais, SP Gordon, J Vogel, B Contrera
 
 ### Software dependencies
 
-Note: the instructions below require **wget**, **curl** and **parallel** on your system.
+Note: the instructions below require **wget**, **curl**, **make**, **git** and **parallel** on your system.
 
 In Debian-like systems like Ubuntu please do:
 
