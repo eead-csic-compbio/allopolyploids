@@ -23,10 +23,28 @@ nohup perl get_homologues/get_homologues-est.pl -d genome_transcripts \
 perl get_homologues/compare_clusters.pl -d 00_1_get_homologues_toy \
 	-o 00_2_core_clusters_Brachypodium_toy -m -n 
 
-# 1.3) Collapse and scale locally aligned clusters in folder 01_collapsed_core_clusters_rename_toy
+# 1.3) Collapse and save locally align clusters in 00_2_core_clusters_Brachypodium_toy (not in repo)
 
 for FILE in `ls 00_2_core_clusters_Brachypodium_toy/*.fna`; do
 	echo $FILE;
 	perl get_homologues/annotate_cluster.pl -D -f $FILE -o $FILE.aln.fna -c 20
 done
+
+# 1.4) Simplify FASTA headers and shorten cluster file names
+
+# Original header:
+#>c31981_g1_i1_chr7:19409754:19415236:+[arb_80_75] collapsed:1,{6}, Pfam:Golgi complex component 7 (COG7);(PF10191,)
+# simplified header:
+#>c31981_g1_i1_chr7[arb_80_75]
+
+for FILE in *collapsed.fna.aln.fna; do
+	echo $FILE;
+	perl -p -i -e 's/>(.+?) .+/>$1/g; s/:\d+:\d+:[+-]//g' $FILE;
+done
+
+for f in *collapsed.fna.aln.fna;
+	do mv -- "$f" "$(basename -- "$f" .collapsed.fna.aln.fna).fa";
+done
+
+# The resulting files are those contained in folder 01_collapsed_core_clusters_rename_toy/
 ```
