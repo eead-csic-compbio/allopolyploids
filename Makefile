@@ -22,8 +22,8 @@ test:
 
 trimal:
 	@echo "Download and compile ${trimurl}"
-	cd ${cwd}/bin; wget -c ${trimalurl}; tar xfz ${trimtar}; cd ${trimdir}/source; make; cd ${cwd}
+	cd ${cwd}/bin; wget -c ${trimalurl}; tar xfz ${trimtar}; cd ${trimdir}/source; make
 
 newick_utils:
 	@echo "Download and compile ${nuurl}"
-	cd ${cwd}/bin; wget -c ${nuurl}; tar xfz ${nutar}; cd ${nudir}; ./configure; make; cd ${cwd}
+	cd ${cwd}/bin; wget -c ${nuurl}; tar xfz ${nutar}; cd ${nudir}; ./configure; make
