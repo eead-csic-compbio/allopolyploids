@@ -18,8 +18,12 @@ nuurl="http://cegg.unige.ch/pub/${nutar}"
 iqtar="iqtree-1.6.12-Linux.tar.gz"
 iqurl="https://github.com/Cibiv/IQ-TREE/releases/download/v1.6.12/${iqtar}"
 
+# GET_HOMOLOGUES-EST, see https://github.com/eead-csic-compbio/get_homologues
+ghdir="get_homologues"
+ghurl="https://github.com/eead-csic-compbio/${ghdir}.git"
+
 install:
-	make trimal newick_utils iqtree
+	make trimal newick_utils iqtree get_homologues
 
 test:
 	perl allopolyploids.t
@@ -35,3 +39,7 @@ newick_utils:
 iqtree:
 	@echo "Download ${iqurl}"
 	cd ${cwd}/bin; wget -c ${iqurl}; tar xfz ${iqtar}
+
+get_homologues:
+	@echo "Download and install ${ghurl}"
+	cd ${cwd}/bin; git clone ${ghurl}; cd ${ghdir}; perl install.pl force
