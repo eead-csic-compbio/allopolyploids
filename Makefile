@@ -14,8 +14,12 @@ nudir="newick-utils-1.6"
 nutar="newick-utils-1.6-Linux-x86_64-enabled-extra.tar.gz"
 nuurl="http://cegg.unige.ch/pub/${nutar}"
 
+# IQ-TREE, see http://www.iqtree.org
+iqtar="iqtree-1.6.12-Linux.tar.gz"
+iqurl="https://github.com/Cibiv/IQ-TREE/releases/download/v1.6.12/${iqtar}"
+
 install:
-	make trimal newick_utils
+	make trimal newick_utils iqtree
 
 test:
 	perl allopolyploids.t
@@ -27,3 +31,7 @@ trimal:
 newick_utils:
 	@echo "Download and compile ${nuurl}"
 	cd ${cwd}/bin; wget -c ${nuurl}; tar xfz ${nutar}; cd ${nudir}; ./configure; make
+
+iqtree:
+	@echo "Download ${iqurl}"
+	cd ${cwd}/bin; wget -c ${iqurl}; tar xfz ${iqtar}
