@@ -7,7 +7,7 @@
 #
 # Diploid species must contain unique string hard-coded in @polyconfig::diploids
 # 
-# B Contreras-Moreira, R Sancho, EEAD-CSIC & EPS-UNIZAR 2018-20
+# B Contreras-Moreira, R Sancho, EEAD-CSIC & EPS-UNIZAR 2018-21
 
 use strict;
 use warnings;
@@ -21,7 +21,7 @@ use Bio::Phylo::IO;
 use Bio::Phylo::Forest::Tree;
 
 # external dependency, take it from http://cegg.unige.ch/newick_utils 
-my $PRUNEXE = 'nw_prune';
+my $PRUNEXE = $Bin . '/../bin/newick-utils-1.6/src/nw_prune'; 
 
 # test it
 my $test_output = `$PRUNEXE 2>&1`;
