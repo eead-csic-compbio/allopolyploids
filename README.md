@@ -12,17 +12,38 @@ R Sancho, LA Inda, A Díaz-Pérez, DL Des Marais, SP Gordon, J Vogel, B Contrera
 
 ### Software dependencies
 
+Note The instructions below require **wget** and **curl** on your system.
+
 In Debian-like systems like Ubuntu please do:
 
 ```
-# Perl dependencies
+# Perl
 sudo apt-get install -y libdb-dev
 curl -L https://cpanmin.us | perl - --sudo App::cpanminus
 cpanm --sudo -v --installdeps --notest --cpanfile cpanfile .
 
+# R 
+sudo apt-get install -y r-base
+
 # third-party binaries
 make install
 ```
+
+In RedHat-like systems:
+```
+# Perl
+sudo yum install libdb-devel
+curl -L https://cpanmin.us | perl - --sudo App::cpanminus
+cpanm --sudo -v --installdeps --notest --cpanfile cpanfile .
+
+# R
+sudo yum install epel-release
+sudo apt-get install R
+
+# third-party binaries
+make install
+```
+
 
 ### Data set and abbreviations
 
