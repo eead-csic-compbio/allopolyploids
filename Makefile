@@ -28,6 +28,10 @@ caurl="https://raw.githubusercontent.com/vinuesa/get_phylomarkers/master/concat_
 # consensus, see https://github.com/josephhughes/Sequence-manipulation
 courl="https://raw.githubusercontent.com/josephhughes/Sequence-manipulation/master/Consensus.pl"
 
+## Brachypodium benchmark data
+brachyurl="https://github.com/eead-csic-compbio/allopolyploids/releases/download/1.0/Brachypodium_bench.tar.gz"
+
+
 install:
 	make trimal newick_utils iqtree get_homologues concat_aln consensus
 
@@ -35,26 +39,30 @@ test:
 	perl allopolyploids.t
 
 trimal:
-	@echo "Download and compile ${trimurl}"
+	@echo "Downloading and compiling ${trimurl}"
 	cd ${cwd}/bin; wget -c ${trimalurl}; tar xfz ${trimtar}; cd ${trimdir}/source; make
 
 newick_utils:
-	@echo "Download and compile ${nuurl}"
+	@echo "Downloading ${nuurl}"
 	cd ${cwd}/bin; wget -c ${nuurl}; tar xfz ${nutar}
 
 iqtree:
-	@echo "Download ${iqurl}"
+	@echo "Downloading ${iqurl}"
 	cd ${cwd}/bin; wget -c ${iqurl}; tar xfz ${iqtar}
 
 get_homologues:
-	@echo "Download and install ${ghurl}"
+	@echo "Downloading and installing ${ghurl}"
 	cd ${cwd}/bin; git clone ${ghurl}; cd ${ghdir}; perl install.pl force
 
 concat_aln:
-	@echo "Download ${caurl}"
+	@echo "Downloading ${caurl}"
 	cd ${cwd}/bin; wget -c ${caurl}
 
 consensus:
-	@echo "Download ${courl}"
+	@echo "Downloading ${courl}"
 	cd ${cwd}/bin; wget -c ${courl}
+
+brachy:
+	@echo "Downloading ${brachyurl}"
+	wget -c ${brachyurl}
 
