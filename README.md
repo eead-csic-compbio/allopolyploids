@@ -96,7 +96,7 @@ This produces 3675 clusters.
 
 We can now compute pan-gene matrices for these core clusters:
 ```
-get_homologues/compare_clusters.pl \
+bin/get_homologues/compare_clusters.pl \
 -d genome_transcripts_est_homologues/arb8075_alltaxa_no_sorghum_no_sylCor.list_algOMCL_e0_S80_/ \
 -o core_clusters_Brachypodium -m -n &> compare.core.log
 ```
@@ -104,7 +104,7 @@ get_homologues/compare_clusters.pl \
 We can plot an Average Nucleotide Identity (ANI) matrix:
 
 ```
-get_homologues/plot_matrix_heatmap.sh -i \
+bin/get_homologues/plot_matrix_heatmap.sh -i \
    genome_transcripts_est_homologues/arb8075_alltaxa_no_sorghum_no_sylCor.list_algOMCL_e0_S80_Avg_identity.tab \
    -H 14 -W 26 -t "ANI of transcripts in 3675 core clusters" -N -o pdf
 ```
@@ -113,7 +113,7 @@ From the clusters obtained earlier we can now produce MVIEW collapsed, multiple 
 ```
 for FILE in `ls core_clusters/*.fna`; do
    echo $FILE;
-	get_homologues/annotate_cluster.pl -D -f $FILE -o $FILE.aln.fna -c 20 &>> collapse.align.core.log;
+	bin/get_homologues/annotate_cluster.pl -D -f $FILE -o $FILE.aln.fna -c 20 &>> collapse.align.core.log;
 done
 ```
 
@@ -205,7 +205,7 @@ We can now trim the resulting blocks with https://vicfero.github.io/trimal to re
 ```
 for FILE in *block.fna; do
 echo $FILE;
-trimal/source/trimal -in $FILE -out $FILE.trimmed.fna -automated1;
+bin/trimal/source/trimal -in $FILE -out $FILE.trimmed.fna -automated1;
 done
 ```
 
@@ -214,7 +214,7 @@ done
 
 We can now run IQ-TREE in parallel. The results are saved in the folder 03_iqtree_treefiles/iqtree_treefile (see results in treefile.tar.bz2 file)
 ```
-ls *.trimmed.fna | parallel --gnu -j 3 iqtree-omp-1.5.5-Linux/bin/iqtree-omp \
+ls *.trimmed.fna | parallel --gnu -j 3 bin/iqtree-omp-1.5.5-Linux/bin/iqtree-omp \
    -alrt 1000 -bb 1000 -nt AUTO -AICc -s {} :::
 ```
 
@@ -395,7 +395,7 @@ Removed the other pruned FASTA ".extract" files without polyploid sequences
 ### 2.2) Run 1000 non-parametric bootstrapping replicates (iqtree)
 
 ```
-ls *.fna | parallel --gnu -j 60 iqtree-1.6.9-Linux/bin/iqtree -b 1000 -nt 1 -AICc -s {} :::
+ls *.fna | parallel --gnu -j 60 bin/iqtree-1.6.9-Linux/bin/iqtree -b 1000 -nt 1 -AICc -s {} :::
 ```
 You can run it using a bash script and nohup:
 ```
@@ -752,7 +752,7 @@ During the previous steps, some columns could have been transformed into "allgap
 ```
 for FILE in *.fna; do
 echo $FILE;
-/trimal/source/trimal -in $FILE -out $FILE.noallgaps.fna -noallgaps -keepheader -keepseqs;
+bin/trimal/source/trimal -in $FILE -out $FILE.noallgaps.fna -noallgaps -keepheader -keepseqs;
 done
 ```
 
@@ -804,7 +804,7 @@ Run in 07_labelled_alignment_corrected_filtered directory
 ```
 for FILE in *filtered.fna; do
 echo $FILE;
-trimal/source/trimal -in $FILE -out $FILE.noallgaps.fna -noallgaps -keepheader -keepseqs;
+bin/trimal/source/trimal -in $FILE -out $FILE.noallgaps.fna -noallgaps -keepheader -keepseqs;
 done
 ```
 The filtered and corrected files are saved such as compressed fasta.label.trimmed.filtered.noallgaps.tar.bz2 files.
@@ -816,7 +816,7 @@ We create the coordinate file and concatenate the MSAs using get_phylomarkers/co
 ```
 ls -1 *.filtered.fna.noallgaps.fna > list_genes.txt
 
-get_phylomarkers/concat_alignments.pl list_genes.txt > MSA_labelled_filtered.fna
+bin/get_phylomarkers/concat_alignments.pl list_genes.txt > MSA_labelled_filtered.fna
 ```
 We format the concatenation_coordinates.txt to crate the partitional file input for iqtree execution.
 
@@ -825,7 +825,7 @@ grep -v -P "^#" concatenation_coordinates.txt | perl -lne 'if(/(\d+-\d+)$/){ pri
 ```
 We run iqtree to infer the "Homeologs' ML consensus tree"
 ```
-nohup /iqtree-1.6.1-Linux/bin/iqtree -s MSA_labelled_filtered.fna -spp MSA_labelled_filtered_partitions.txt -m MFP -AICc -alrt 1000 -bb 1000 -nt AUTO &
+nohup bin/iqtree-1.6.1-Linux/bin/iqtree -s MSA_labelled_filtered.fna -spp MSA_labelled_filtered_partitions.txt -m MFP -AICc -alrt 1000 -bb 1000 -nt AUTO &
 ```
 
 **Note:**This result (MSA_labelled_filtered_partitions.txt.treefile) is the "Homeologs' ML consensus tree" (in the paper the labelled homeologs are represented using lower-case letters (a, b,...)
@@ -864,7 +864,7 @@ Separate Principal Coordinate Analysis (PCoA) was performed using the patristic 
 The homeolog grafting distributions are cumputed analysing the re-labelling bootstrapping frequencies (100 boottrees), removing underrepresented alleles, using the R-script script/homeolog_distribution.R.
 
 ```
-Rscript homeolog_distribution.R 10 08_2_input_homeolog_distribution.tsv 08_2_output_homeolog_distribution.txt
+Rscript scripts/homeolog_distribution.R 10 08_2_input_homeolog_distribution.tsv 08_2_output_homeolog_distribution.txt
 ```
 **Note:** The value 10 corresponds to the 10% of the highest frequency value, which represents the lowest threshold allowed to include additional branches in the distribution of that homeolog-type
 
@@ -926,7 +926,7 @@ We check sequences, rename and sort them, and we save the result such as MSA_lab
 **Note:** the coordinates of partitions are the same as previous step (07_labelled_alignment_corrected_filtered)
 
 ```
-nohup iqtree-1.6.1-Linux/bin/iqtree -s MSA_labelled_filtered_consensus_final.fna -spp MSA_labelled_filtered_consensus_partitions.txt -m MFP -AICc -alrt 1000 -bb 1000 -nt AUTO &
+nohup bin/iqtree-1.6.1-Linux/bin/iqtree -s MSA_labelled_filtered_consensus_final.fna -spp MSA_labelled_filtered_consensus_partitions.txt -m MFP -AICc -alrt 1000 -bb 1000 -nt AUTO &
 ```
 The tree is saved such as MSA_labelled_filtered_consensus_partitions.txt.treefile file.
 
