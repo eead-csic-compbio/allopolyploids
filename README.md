@@ -12,13 +12,24 @@ R Sancho, LA Inda, A Díaz-Pérez, DL Des Marais, SP Gordon, J Vogel, B Contrera
 
 ### Software dependencies
 
-Note: the instructions below require **wget**, **curl**, **make**, **git** and **parallel** on your system.
+This pipeline has several software pipelines, which can be installed as explained below in folder [bin/](./bin):
+
+|software|URL|
+|-------|---|
+|TrimAl|https://github.com/scapella/trimal|
+|newick_utils|http://cegg.unige.ch/newick_utils|
+|IQ-TREE|http://www.iqtree.org|
+|GET_HOMOLOGUES-EST|https://github.com/eead-csic-compbio/get_homologues|
+|concat_alignments.pl|https://github.com/vinuesa/get_phylomarkers|
+|Consensus.pl|https://github.com/josephhughes/Sequence-manipulation|
+
+In addition, the instructions below require **wget**, **curl**, **make**, **git** and **parallel** on your system.
 
 In Debian-like systems like Ubuntu please do:
 
 ```
 # Perl
-sudo apt-get install -y libdb-dev
+sudo apt-get install -y libdb-dev parallel git curl cpanminus
 curl -L https://cpanmin.us | perl - --sudo App::cpanminus
 cpanm --sudo -v --installdeps --notest --cpanfile cpanfile .
 
@@ -47,7 +58,15 @@ make install
 
 ### Data set and abbreviations
 
-Brachypodium RNA-seq data were deposited at the [European Nucleotide Archive](https://www.ebi.ac.uk/ena) with run accessions numbers:
+In order to download the data used for the *Brachypodium*, used in the tutorial below,
+[benchmark](https://github.com/eead-csic-compbio/allopolyploids/releases/download/1.0/Brachypodium_bench.tar.gz) 
+please do:
+```
+make brachy 
+```
+
+Note that *Brachypodium* RNA-seq data were also deposited at the 
+[European Nucleotide Archive](https://www.ebi.ac.uk/ena) with run accessions numbers:
 
 * ERR3633153 (B. arbuscula)
 * ERR3634426 (B. boissieri)
@@ -60,9 +79,12 @@ Brachypodium RNA-seq data were deposited at the [European Nucleotide Archive](ht
 * ERR3636791 (B. rupestre) 
 * ERR3636828 (B. stacei)
 
-B. sylvaticum RNA-seq data of accession Brasy-Esp were obtained from the study by [Fox et al., 2013](https://doi.org/10.3732/apps.1200011). 
+*B. sylvaticum* RNA-seq data from accession Brasy-Esp were obtained from the study by 
+[Fox et al., 2013](https://doi.org/10.3732/apps.1200011). 
 
-Transcriptomic data was also retrieved for the outgroup species Oryza sativa (SRX738077) and Hordeum vulgare (ERR159679), which were used to root the phylogenetic Brachypodium trees and to provide a stem branch for the grafting of ancestral homeologs/subgenomes.
+Transcriptomic data were also retrieved for the outgroup species Oryza sativa (SRX738077) 
+and Hordeum vulgare (ERR159679), which were used to root the phylogenetic *Brachypodium* trees 
+and to provide a stem branch for the grafting of ancestral homeologs/subgenomes.
 
 The following abbreviations were used:
 
