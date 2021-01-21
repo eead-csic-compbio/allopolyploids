@@ -1,5 +1,7 @@
 # PhyloSD: Phylogenomic Subgenomic Detection pipeline
 
+[![Build Status](https://travis-ci.com/eead-csic-compbio/allopolyploids.svg?branch=master)](https://travis-ci.com/eead-csic-compbio/allopolyploids)
+
 This pipeline was designed by Ruben Sancho, Antonio Diaz, Pilar Catalan and Bruno Contreras Moreira for the subgenome identification of homeologous diploid genomes present in allopolyploids, also considering potentially unknown progenitors. Phylogenomic Subgenomic Detection (PhyloSD) pipeline includes three sequential Nearest Diploid Species Node, Bootstrapping Refinement, and Subgenome Assignment algorithms.
 
 The protocol is explained in detail in the article (publication in process) titled:
