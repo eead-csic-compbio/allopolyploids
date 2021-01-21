@@ -10,8 +10,6 @@ R Sancho, LA Inda, A Díaz-Pérez, DL Des Marais, SP Gordon, J Vogel, B Contrera
 
 ## 0) Pre-processing of the data set and installation of dependencies
 
-### Software dependencies
-
 This pipeline has several dependencies, which can be installed as explained below in folder [bin/](./bin):
 
 |software|URL|
@@ -23,9 +21,9 @@ This pipeline has several dependencies, which can be installed as explained belo
 |concat_alignments.pl|https://github.com/vinuesa/get_phylomarkers|
 |Consensus.pl|https://github.com/josephhughes/Sequence-manipulation|
 
-In addition, the instructions below require **wget**, **curl**, **make**, **git** and **parallel** on your system.
+In addition, the instructions below require **wget**, **curl**, **make**, **git**, **perl**  and **parallel** on your system.
 
-In Debian-like systems like Ubuntu please do:
+In Debian-like systems like Ubuntu please copy and paste the following command lines in your terminal to install:
 
 ```
 # Perl
@@ -53,6 +51,11 @@ sudo apt-get install R
 
 # third-party binaries
 make install
+```
+
+In order to check you installation please run:
+```
+make test
 ```
 
 
