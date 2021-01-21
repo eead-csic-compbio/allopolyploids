@@ -1,0 +1,18 @@
+os: linux
+dist: focal
+language: perl
+perl:
+  - "5.30"
+
+before_install:
+  - "sudo apt-get update"
+  - "sudo apt-get install -y libdb-dev parallel git curl cpanminus"
+  - "cpanm --sudo -v --installdeps --notest --cpanfile cpanfile ."
+  - "make install"
+
+script:
+  - "make test"
+
+notifications:
+  email:
+    on_failure: always
