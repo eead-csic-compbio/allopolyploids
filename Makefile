@@ -29,7 +29,8 @@ caurl="https://raw.githubusercontent.com/vinuesa/get_phylomarkers/master/concat_
 courl="https://raw.githubusercontent.com/josephhughes/Sequence-manipulation/master/Consensus.pl"
 
 ## Brachypodium benchmark data
-brachyurl="https://github.com/eead-csic-compbio/allopolyploids/releases/download/1.0/Brachypodium_bench.tar.gz"
+brachytar="Brachypodium_bench.tar.gz"
+brachyurl="https://github.com/eead-csic-compbio/allopolyploids/releases/download/1.0/${brachytar}"
 
 
 install:
@@ -64,5 +65,5 @@ consensus:
 
 brachy:
 	@echo "Downloading ${brachyurl}"
-	wget -c ${brachyurl}
+	wget -c ${brachyurl}; tar xfz ${brachytar}
 
