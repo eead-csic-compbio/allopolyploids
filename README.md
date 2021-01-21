@@ -978,7 +978,7 @@ perl -lne 'if(/^(>.*)/){ $head=$1 } else { $fa{$head} .= $_ } END{ foreach $s (k
 perl -lne 'if(/^(>.*)/){ $head=$1 } else { $fa{$head} .= $_ } END{ foreach $s (keys(%fa)){ print "$s\n$fa{$s}\n" if($s =~ /Brup_F/ || $s =~ /Brup_G/ || $s =~ /Brup_H/|| $s =~ /Brup_I/) }}' MSA_labelled_filtered.fna > Brup_f_g_h_i.fna
 ```
 
-We can use the perl script Consensus.pl (https://github.com/josephhughes/Sequence-manipulation/blob/master/Consensus.pl):
+We can use the script Consensus.pl:
 ```
 e.g.
 
