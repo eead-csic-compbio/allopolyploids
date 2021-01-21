@@ -214,7 +214,7 @@ done
 
 We can now run IQ-TREE in parallel. The results are saved in the folder 03_iqtree_treefiles/iqtree_treefile (see results in treefile.tar.bz2 file)
 ```
-ls *.trimmed.fna | parallel --gnu -j 3 bin/iqtree-omp-1.5.5-Linux/bin/iqtree-omp \
+ls *.trimmed.fna | parallel --gnu -j 3 bin/iqtree-1.6.12-Linux/bin/iqtree \
    -alrt 1000 -bb 1000 -nt AUTO -AICc -s {} :::
 ```
 
@@ -395,7 +395,7 @@ Removed the other pruned FASTA ".extract" files without polyploid sequences
 ### 2.2) Run 1000 non-parametric bootstrapping replicates (iqtree)
 
 ```
-ls *.fna | parallel --gnu -j 60 bin/iqtree-1.6.9-Linux/bin/iqtree -b 1000 -nt 1 -AICc -s {} :::
+ls *.fna | parallel --gnu -j 60 bin/iqtree-1.6.12-Linux/bin/iqtree -b 1000 -nt 1 -AICc -s {} :::
 ```
 You can run it using a bash script and nohup:
 ```
@@ -418,7 +418,7 @@ The statistics have to take in count just in trees with the congruent diploid sk
 
 ```
 for FILE in ./*.relabelled/*.root.ph;
-do perl ~scripts/_check_diploids.pl $FILE;
+do perl scripts/_check_diploids.pl $FILE;
 done &>> stats_diploid_skeleton_1000boottrees.log
 ```
 
@@ -816,7 +816,7 @@ We create the coordinate file and concatenate the MSAs using get_phylomarkers/co
 ```
 ls -1 *.filtered.fna.noallgaps.fna > list_genes.txt
 
-bin/get_phylomarkers/concat_alignments.pl list_genes.txt > MSA_labelled_filtered.fna
+bin/concat_alignments.pl list_genes.txt > MSA_labelled_filtered.fna
 ```
 We format the concatenation_coordinates.txt to crate the partitional file input for iqtree execution.
 
@@ -825,7 +825,7 @@ grep -v -P "^#" concatenation_coordinates.txt | perl -lne 'if(/(\d+-\d+)$/){ pri
 ```
 We run iqtree to infer the "Homeologs' ML consensus tree"
 ```
-nohup bin/iqtree-1.6.1-Linux/bin/iqtree -s MSA_labelled_filtered.fna -spp MSA_labelled_filtered_partitions.txt -m MFP -AICc -alrt 1000 -bb 1000 -nt AUTO &
+nohup bin/iqtree-1.6.12-Linux/bin/iqtree -s MSA_labelled_filtered.fna -spp MSA_labelled_filtered_partitions.txt -m MFP -AICc -alrt 1000 -bb 1000 -nt AUTO &
 ```
 
 **Note:**This result (MSA_labelled_filtered_partitions.txt.treefile) is the "Homeologs' ML consensus tree" (in the paper the labelled homeologs are represented using lower-case letters (a, b,...)
@@ -910,7 +910,7 @@ We can use the perl script Consensus.pl (https://github.com/josephhughes/Sequenc
 ```
 e.g.
 
-perl Consensus.pl -iupac -in Bmex_a_b_c.fna -out Bmex_A_consensus.fna
+perl bin/Consensus.pl -iupac -in Bmex_a_b_c.fna -out Bmex_A_consensus.fna
 ```
 
 We concatenate the diploids, outgroups, single-allelic and compound-allelic (.consensus.fna files) subgenomes sequences. 
@@ -926,7 +926,7 @@ We check sequences, rename and sort them, and we save the result such as MSA_lab
 **Note:** the coordinates of partitions are the same as previous step (07_labelled_alignment_corrected_filtered)
 
 ```
-nohup bin/iqtree-1.6.1-Linux/bin/iqtree -s MSA_labelled_filtered_consensus_final.fna -spp MSA_labelled_filtered_consensus_partitions.txt -m MFP -AICc -alrt 1000 -bb 1000 -nt AUTO &
+nohup bin/iqtree-1.6.12-Linux/bin/iqtree -s MSA_labelled_filtered_consensus_final.fna -spp MSA_labelled_filtered_consensus_partitions.txt -m MFP -AICc -alrt 1000 -bb 1000 -nt AUTO &
 ```
 The tree is saved such as MSA_labelled_filtered_consensus_partitions.txt.treefile file.
 
