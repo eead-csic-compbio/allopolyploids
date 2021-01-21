@@ -11,7 +11,7 @@ trimalurl="https://github.com/scapella/trimal/archive/${trimtar}"
 
 # newick_utils, see http://cegg.unige.ch/newick_utils
 nudir="newick-utils-1.6"
-nutar="newick-utils-1.6-Linux-x86_64-enabled-extra.tar.gz"
+nutar="newick-utils-1.6-Linux-x86_64-disabled-extra.tar.gz"
 nuurl="http://cegg.unige.ch/pub/${nutar}"
 
 # IQ-TREE, see http://www.iqtree.org
@@ -40,7 +40,7 @@ trimal:
 
 newick_utils:
 	@echo "Download and compile ${nuurl}"
-	cd ${cwd}/bin; wget -c ${nuurl}; tar xfz ${nutar}; cd ${nudir}; ./configure; make
+	cd ${cwd}/bin; wget -c ${nuurl}; tar xfz ${nutar}
 
 iqtree:
 	@echo "Download ${iqurl}"
