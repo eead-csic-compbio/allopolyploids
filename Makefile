@@ -2,6 +2,8 @@
 
 cwd=${PWD}
 
+.PHONY: test install
+
 ## third-party dependencies
 
 # trimal, see https://github.com/scapella/trimal
@@ -66,4 +68,3 @@ consensus:
 brachy:
 	@echo "Downloading ${brachyurl}"
 	wget -c ${brachyurl}; tar xfz ${brachytar}; rm ${brachytar}
-
