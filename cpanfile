@@ -1,5 +1,5 @@
 requires 'Getopt::Std';
-File::Basename;
+requires 'File::Basename';
 requires 'FindBin';
 requires 'DB_File';
 requires 'IO::String';
