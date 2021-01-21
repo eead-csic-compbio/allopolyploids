@@ -1,7 +1,10 @@
 requires 'Getopt::Std';
+File::Basename;
 requires 'FindBin';
 requires 'DB_File';
 requires 'IO::String';
+requires 'Bio::SeqIO';
+requires 'Bio::AlignIO';
 requires 'Bio::TreeIO';
 requires 'Bio::Phylo::IO';
 requires 'Bio::Phylo::Forest::Tree';
