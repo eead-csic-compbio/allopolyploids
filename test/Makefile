@@ -11,7 +11,7 @@ outdir04="${cwd}/04_iqtree_treefiles_rooted_Brachypodium_toy"
 
 test:
 	make nearest_diploid_species_node_1 nearest_diploid_species_node_2\
-		nearest_diploid_species_node_2 nearest_diploid_species_node_4\
+		nearest_diploid_species_node_3 nearest_diploid_species_node_4\
 		nearest_diploid_species_node_5 clean
 
 clean:
