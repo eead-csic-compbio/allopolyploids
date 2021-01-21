@@ -12,45 +12,45 @@ R Sancho, LA Inda, A Díaz-Pérez, DL Des Marais, SP Gordon, J Vogel, B Contrera
 
 <!-- made with perl -lne 'if(/^(#{1,}) (.*)/){ ($i,$t)=($1,$2); $l=lc($t); $l=~s/\W/\-/g; print "$i [$t](#$l)"}'-->
 
-- [0) Pre-processing of the data set and installation of dependencies](#0--pre-processing-of-the-data-set-and-installation-of-dependencies)
+- [0) Pre-processing of the data set and installation of dependencies](#0-pre-processing-of-the-data-set-and-installation-of-dependencies)
 	- [Data set and abbreviations](#data-set-and-abbreviations)
 	- [Run GET_HOMOLOGUES-EST to construct the core gene/transcript alignments](#run-get_homologues-est-to-construct-the-core-gene-transcript-alignments)
-- [1) NEAREST DIPLOID SPECIES NODE algorithm](#1--nearest-diploid-species-node-algorithm)
-	- [1.1) Edit polyconfig.pm file to adapt the previous information to your specific analyses. Define diploids, polyploids, outgroup, rooted species, ad-hoc labelling rules, ...](#1-1--edit-polyconfig-pm-file-to-adapt-the-previous-information-to-your-specific-analyses--define-diploids--polyploids--outgroup--rooted-species--ad-hoc-labelling-rules-----)
-	- [1.2) Simplify headers and names of files from collapsed core clusters](#1-2--simplify-headers-and-names-of-files-from-collapsed-core-clusters)
-	- [1.3) Filter Mutiple Sequences Alignments (MSAs) according to the diploid block and remove inconsistent positions](#1-3--filter-mutiple-sequences-alignments--msas--according-to-the-diploid-block-and-remove-inconsistent-positions)
-	- [1.4) Compute ML (Maximun-Likelihood) gene trees](#1-4--compute-ml--maximun-likelihood--gene-trees)
-	- [1.5) Root and sort nodes in trees, loosing bootstrap and aLRT supports on the way](#1-5--root-and-sort-nodes-in-trees--loosing-bootstrap-and-alrt-supports-on-the-way)
-	- [1.6) Check diploid skeleton (topology) for each tree](#1-6--check-diploid-skeleton--topology--for-each-tree)
-	- [1.7) We will now copy files (.fna, root.ph, root.ph.pruned) with congruent diploid topologies to folder 04_congruent_and_labelled_files](#1-7--we-will-now-copy-files---fna--root-ph--root-ph-pruned--with-congruent-diploid-topologies-to-folder-04_congruent_and_labelled_files)
-	- [1.8) Labelling polyploid homeologs](#1-8--labelling-polyploid-homeologs)
-- [2) BOOTSTRAPPING REFINEMENT algorithm](#2--bootstrapping-refinement-algorithm)
-### [2.1) Set the pruned FASTA alignments (diploids + outgroups + one polyploid homeolog)](#2-1--set-the-pruned-fasta-alignments--diploids---outgroups---one-polyploid-homeolog-)
-### [2.2) Run 1000 non-parametric bootstrapping replicates (iqtree)](#2-2--run-1000-non-parametric-bootstrapping-replicates--iqtree-)
-### [2.3) Extract, root and sort the bootstrap trees (boottrees) from the 1000 bootstrapping files](#2-3--extract--root-and-sort-the-bootstrap-trees--boottrees--from-the-1000-bootstrapping-files)
-### [2.4) Check diploid skeletons of extracted, rooted and sorted boottrees (1000 per allele)](#2-4--check-diploid-skeletons-of-extracted--rooted-and-sorted-boottrees--1000-per-allele-)
-### [2.5) Check files that show less than 100 bootrees with congruent diploid skeleton](#2-5--check-files-that-show-less-than-100-bootrees-with-congruent-diploid-skeleton)
-### [2.6) Copy congruent filtered files (boottrees) in 2_3_iqtree_boottrees_1000_congruent directory](#2-6--copy-congruent-filtered-files--boottrees--in-2_3_iqtree_boottrees_1000_congruent-directory)
-### [2.7) Random selection of 100 boottrees (root.ph) for each directory/allele in the folder 2_3_iqtree_boottrees_1000_congruent](#2-7--random-selection-of-100-boottrees--root-ph--for-each-directory-allele-in-the-folder-2_3_iqtree_boottrees_1000_congruent)
-### [2.8) Re-label and compute the statistics of the 100 random boottrees with congruent diploid skeleton for each directory/allele:](#2-8--re-label-and-compute-the-statistics-of-the-100-random-boottrees-with-congruent-diploid-skeleton-for-each-directory-allele-)
-### [2.9) Additional round of re-labelling congruent boottrees](#2-9--additional-round-of-re-labelling-congruent-boottrees)
-### [2.10) We put together in a single boottrees file each of the 100 boottrees (additional round) of each allele.](#2-10--we-put-together-in-a-single-boottrees-file-each-of-the-100-boottrees--additional-round--of-each-allele-)
-### [2.11) Re-label and compute the statistics of the boottrees (additional round) with congruent diploid skeleton for each directory/allele](#2-11--re-label-and-compute-the-statistics-of-the-boottrees--additional-round--with-congruent-diploid-skeleton-for-each-directory-allele)
-### [2.12) Random selection of 100 re-labelled boottrees (additional round) for each directory/allele](#2-12--random-selection-of-100-re-labelled-boottrees--additional-round--for-each-directory-allele)
-### [2.13) Re-label and compute the statistics of the random selection of 100 boottrees (additional round) with congruent diploid skeleton for each directory/allele. We run the scripts/_bootstrap_label_stats.pl tool to re-label the boottrees and calculate the statistics of homeolog-types (A, B, C,...)](#2-13--re-label-and-compute-the-statistics-of-the-random-selection-of-100-boottrees--additional-round--with-congruent-diploid-skeleton-for-each-directory-allele--we-run-the-scripts-_bootstrap_label_stats-pl-tool-to-re-label-the-boottrees-and-calculate-the-statistics-of-homeolog-types--a--b--c-----)
-### [2.14) Refinement of the alignments according to bootstrapping analysis](#2-14--refinement-of-the-alignments-according-to-bootstrapping-analysis)
-### [2.15) Run trimAl to remove columns with all gaps, kepping all gapped sequences](#2-15--run-trimal-to-remove-columns-with-all-gaps--kepping-all-gapped-sequences)
-### [2.16) Remove the underrepresented alleles/homeolgos (keep only the homeologs with 10% of representation in the polyploid species) from .trimmed files (see /06_labelled_alignment_corrected/fasta.label.trimmed.tar.bz2)](#2-16--remove-the-underrepresented-alleles-homeolgos--keep-only-the-homeologs-with-10--of-representation-in-the-polyploid-species--from--trimmed-files--see--06_labelled_alignment_corrected-fasta-label-trimmed-tar-bz2-)
-### [2.17) Check and remove "allgapped" columns](#2-17--check-and-remove--allgapped--columns)
-### [2.18) Phylogenomic analysis of concatenated labelled, filtered  and corrected genes/MSAs ("Homeologs' ML consensus tree")](#2-18--phylogenomic-analysis-of-concatenated-labelled--filtered--and-corrected-genes-msas---homeologs--ml-consensus-tree--)
-## [3) SUBGENOME ASSIGNMENT algorithm](#3--subgenome-assignment-algorithm)
-### [3.1) Chromosome counts](#3-1--chromosome-counts)
-### [3.2) Patristic distance](#3-2--patristic-distance)
-### [3.3) Principal Coordinate Analysis (PCoA) and superimposed Minimum Spanning Tree (MST) generated from patristic distances and the Homeologs’ ML consensus tree.](#3-3--principal-coordinate-analysis--pcoa--and-superimposed-minimum-spanning-tree--mst--generated-from-patristic-distances-and-the-homeologs----ml-consensus-tree-)
-### [3.4) Cumpute the homeolog grafting distributions](#3-4--cumpute-the-homeolog-grafting-distributions)
-### [3.5) Amalgamate homeologs (a, b, ...) to infer the compound-allelic subgenomes (A1, A2, B, ...)](#3-5--amalgamate-homeologs--a--b-------to-infer-the-compound-allelic-subgenomes--a1--a2--b------)
-### [3.6) Compute the Subgenomic ML consensus tree](#3-6--compute-the-subgenomic-ml-consensus-tree)
-## [4) Dating analysis using Beast2](#4--dating-analysis-using-beast2)
+- [1) NEAREST DIPLOID SPECIES NODE algorithm](#1-nearest-diploid-species-node-algorithm)
+	- [1.1) Edit polyconfig.pm file to adapt the previous information to your specific analyses. Define diploids, polyploids, outgroup, rooted species, ad-hoc labelling rules, ...](#1-1-edit-polyconfig-pm-file-to-adapt-the-previous-information-to-your-specific-analyses-define-diploids-polyploids-outgroup-rooted-species-ad-hoc-labelling-rules)
+	- [1.2) Simplify headers and names of files from collapsed core clusters](#1-2-simplify-headers-and-names-of-files-from-collapsed-core-clusters)
+	- [1.3) Filter Mutiple Sequences Alignments (MSAs) according to the diploid block and remove inconsistent positions](#1-3-filter-mutiple-sequences-alignments-msas-according-to-the-diploid-block-and-remove-inconsistent-positions)
+	- [1.4) Compute ML (Maximun-Likelihood) gene trees](#1-4-compute-ml-maximun-likelihood-gene-trees)
+	- [1.5) Root and sort nodes in trees, loosing bootstrap and aLRT supports on the way](#1-5-root-and-sort-nodes-in-trees-loosing-bootstrap-and-alrt-supports-on-the-way)
+	- [1.6) Check diploid skeleton (topology) for each tree](#1-6-check-diploid-skeleton-topology-for-each-tree)
+	- [1.7) We will now copy files (.fna, root.ph, root.ph.pruned) with congruent diploid topologies to folder 04_congruent_and_labelled_files](#1-7-we-will-now-copy-files-fna-root-ph-root-ph-pruned-with-congruent-diploid-topologies-to-folder-04_congruent_and_labelled_files)
+	- [1.8) Labelling polyploid homeologs](#1-8-labelling-polyploid-homeologs)
+- [2) BOOTSTRAPPING REFINEMENT algorithm](#2-bootstrapping-refinement-algorithm)
+	- [2.1) Set the pruned FASTA alignments (diploids + outgroups + one polyploid homeolog)](#2-1-set-the-pruned-fasta-alignments--diploids---outgroups---one-polyploid-homeolog)
+	- [2.2) Run 1000 non-parametric bootstrapping replicates (iqtree)](#2-2-run-1000-non-parametric-bootstrapping-replicates-iqtree)
+	- [2.3) Extract, root and sort the bootstrap trees (boottrees) from the 1000 bootstrapping files](#2-3-extract-root-and-sort-the-bootstrap-trees-boottrees-from-the-1000-bootstrapping-files)
+	- [2.4) Check diploid skeletons of extracted, rooted and sorted boottrees (1000 per allele)](#2-4-check-diploid-skeletons-of-extracted-rooted-and-sorted-boottrees-1000-per-allele)
+	- [2.5) Check files that show less than 100 bootrees with congruent diploid skeleton](#2-5-check-files-that-show-less-than-100-bootrees-with-congruent-diploid-skeleton)
+	- [2.6) Copy congruent filtered files (boottrees) in 2_3_iqtree_boottrees_1000_congruent directory](#2-6-copy-congruent-filtered-files-boottrees-in-2_3_iqtree_boottrees_1000_congruent-directory)
+	- [2.7) Random selection of 100 boottrees (root.ph) for each directory/allele in the folder 2_3_iqtree_boottrees_1000_congruent](#2-7-random-selection-of-100-boottrees-root-ph-for-each-directory-allele-in-the-folder-2_3_iqtree_boottrees_1000_congruent)
+	- [2.8) Re-label and compute the statistics of the 100 random boottrees with congruent diploid skeleton for each directory/allele:](#2-8-re-label-and-compute-the-statistics-of-the-100-random-boottrees-with-congruent-diploid-skeleton-for-each-directory-allele)
+	- [2.9) Additional round of re-labelling congruent boottrees](#2-9-additional-round-of-re-labelling-congruent-boottrees)
+	- [2.10) We put together in a single boottrees file each of the 100 boottrees (additional round) of each allele.](#2-10-we-put-together-in-a-single-boottrees-file-each-of-the-100-boottrees-additional-round-of-each-allele)
+	- [2.11) Re-label and compute the statistics of the boottrees (additional round) with congruent diploid skeleton for each directory/allele](#2-11-re-label-and-compute-the-statistics-of-the-boottrees-additional-round-with-congruent-diploid-skeleton-for-each-directory-allele)
+	- [2.12) Random selection of 100 re-labelled boottrees (additional round) for each directory/allele](#2-12-random-selection-of-100-re-labelled-boottrees-additional-round--for-each-directory-allele)
+	- [2.13) Re-label and compute the statistics of the random selection of 100 boottrees (additional round) with congruent diploid skeleton for each directory/allele. We run the scripts/_bootstrap_label_stats.pl tool to re-label the boottrees and calculate the statistics of homeolog-types (A, B, C,...)](#2-13-re-label-and-compute-the-statistics-of-the-random-selection-of-100-boottrees-additional-round-with-congruent-diploid-skeleton-for-each-directory-allele-we-run-the-scripts-_bootstrap_label_stats-pl-tool-to-re-label-the-boottrees-and-calculate-the-statistics-of-homeolog-types--a-b-c)
+	- [2.14) Refinement of the alignments according to bootstrapping analysis](#2-14-refinement-of-the-alignments-according-to-bootstrapping-analysis)
+	- [2.15) Run trimAl to remove columns with all gaps, kepping all gapped sequences](#2-15-run-trimal-to-remove-columns-with-all-gaps-kepping-all-gapped-sequences)
+	- [2.16) Remove the underrepresented alleles/homeolgos (keep only the homeologs with 10% of representation in the polyploid species) from .trimmed files (see /06_labelled_alignment_corrected/fasta.label.trimmed.tar.bz2)](#2-16-remove-the-underrepresented-alleles-homeolgos-keep-only-the-homeologs-with-10-of-representation-in-the-polyploid-species-from-trimmed-files-see-06_labelled_alignment_corrected-fasta-label-trimmed-tar-bz2)
+	- [2.17) Check and remove "allgapped" columns](#2-17-check-and-remove-allgapped-columns)
+	- [2.18) Phylogenomic analysis of concatenated labelled, filtered  and corrected genes/MSAs ("Homeologs' ML consensus tree")](#2-18-phylogenomic-analysis-of-concatenated-labelled-filtered-and-corrected-genes-msas-homeologs-ml-consensus-tree)
+- [3) SUBGENOME ASSIGNMENT algorithm](#3-subgenome-assignment-algorithm)
+	- [3.1) Chromosome counts](#3-1-chromosome-counts)
+	- [3.2) Patristic distance](#3-2-patristic-distance)
+	- [3.3) Principal Coordinate Analysis (PCoA) and superimposed Minimum Spanning Tree (MST) generated from patristic distances and the Homeologs’ ML consensus tree.](#3-3-principal-coordinate-analysis-pcoa-and-superimposed-minimum-spanning-tree-mst-generated-from-patristic-distances-and-the-homeologs-ml-consensus-tree)
+	- [3.4) Compute the homeolog grafting distributions](#3-4-compute-the-homeolog-grafting-distributions)
+	- [3.5) Amalgamate homeologs (a, b, ...) to infer the compound-allelic subgenomes (A1, A2, B, ...)](#3-5-amalgamate-homeologs-a-b-to-infer-the-compound-allelic-subgenomes-a1-a2-b)
+	- [3.6) Compute the Subgenomic ML consensus tree](#3-6-compute-the-subgenomic-ml-consensus-tree)
+- [4) Dating analysis using Beast2](#4-dating-analysis-using-beast2)
 
 
 
@@ -931,7 +931,7 @@ Separate Principal Coordinate Analysis (PCoA) was performed using the patristic 
 **Note:**Alternative open source software can be used for this step.
 
 
-### 3.4) Cumpute the homeolog grafting distributions
+### 3.4) Compute the homeolog grafting distributions
 
 The homeolog grafting distributions are cumputed analysing the re-labelling bootstrapping frequencies (100 boottrees), removing underrepresented alleles, using the R-script script/homeolog_distribution.R.
 
@@ -1006,7 +1006,9 @@ The tree is saved such as MSA_labelled_filtered_consensus_partitions.txt.treefil
 
 ## 4) Dating analysis using Beast2
 
-Once we have inferred the Subgenomic ML consensus tree, we can perform dating analysis (e.g. BEAST2). We have conducted this analysis in the folder 09_Beast2_analysis.
+Once we have inferred the Subgenomic ML consensus tree, we can optionally perform dating analyses with 
+[BEAST2](https://www.beast2.org), which should install if required. 
+We have conducted this analysis in the folder 09_Beast2_analysis.
 
 ```
 The final subgenomes inferred for each polyploid species are:
