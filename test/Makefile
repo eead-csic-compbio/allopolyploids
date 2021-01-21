@@ -11,8 +11,9 @@ outdir02="${cwd}/02_blocks_Brachypodium_toy"
 nearest_diploid_species_node_1:
 	mkdir -p ${outdir02} ;
 	for FILE in ${outdir01}/*.fa ; do \
-        #echo $$FILE ; \
-		perl ${scripts_dir}/_trim_MSA_block.pl -i $$FILE -o ${outdir02}/$$FILE.block.fna -m 100 -M 100 -O 0.5 -R 'c\d+_g\d+_i' -t ${scripts_dir}/species2rename.tsv &>> ${outdir01}/blocks_Brachypodium_toy.log ; \
+        BSFILE="$(basename $$FILE)" ; \
+		echo ${BSFILE} ; \
+		#perl ${scripts_dir}/_trim_MSA_block.pl -i $$FILE -o ${outdir02}/${BSFILE}.block.fna -m 100 -M 100 -O 0.5 -R 'c\d+_g\d+_i' -t ${scripts_dir}/species2rename.tsv &>> ${outdir01}/blocks_Brachypodium_toy.log ; \
     done
 
 
