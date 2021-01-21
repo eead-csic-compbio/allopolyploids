@@ -41,15 +41,15 @@ test:
 
 trimal:
 	@echo "Downloading and compiling ${trimurl}"
-	cd ${cwd}/bin; wget -c ${trimalurl}; tar xfz ${trimtar}; cd ${trimdir}/source; make
+	cd ${cwd}/bin; wget -c ${trimalurl}; tar xfz ${trimtar}; cd ${trimdir}/source; make; cd ../..; rm ${trimtar}
 
 newick_utils:
 	@echo "Downloading ${nuurl}"
-	cd ${cwd}/bin; wget -c ${nuurl}; tar xfz ${nutar}
+	cd ${cwd}/bin; wget -c ${nuurl}; tar xfz ${nutar}; rm ${nutar}
 
 iqtree:
 	@echo "Downloading ${iqurl}"
-	cd ${cwd}/bin; wget -c ${iqurl}; tar xfz ${iqtar}
+	cd ${cwd}/bin; wget -c ${iqurl}; tar xfz ${iqtar}; rm ${iqtar}
 
 get_homologues:
 	@echo "Downloading and installing ${ghurl}"
@@ -65,5 +65,5 @@ consensus:
 
 brachy:
 	@echo "Downloading ${brachyurl}"
-	wget -c ${brachyurl}; tar xfz ${brachytar}
+	wget -c ${brachyurl}; tar xfz ${brachytar}; rm ${brachytar}
 
