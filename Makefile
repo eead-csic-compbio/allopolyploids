@@ -22,8 +22,14 @@ iqurl="https://github.com/Cibiv/IQ-TREE/releases/download/v1.6.12/${iqtar}"
 ghdir="get_homologues"
 ghurl="https://github.com/eead-csic-compbio/${ghdir}.git"
 
+# concat_alignments, see https://github.com/vinuesa/get_phylomarkers
+caurl="https://raw.githubusercontent.com/vinuesa/get_phylomarkers/master/concat_alignments.pl"
+
+# consensus, see https://github.com/josephhughes/Sequence-manipulation
+courl="https://raw.githubusercontent.com/josephhughes/Sequence-manipulation/master/Consensus.pl"
+
 install:
-	make trimal newick_utils iqtree get_homologues
+	make trimal newick_utils iqtree get_homologues concat_aln consensus
 
 test:
 	perl allopolyploids.t
@@ -43,3 +49,12 @@ iqtree:
 get_homologues:
 	@echo "Download and install ${ghurl}"
 	cd ${cwd}/bin; git clone ${ghurl}; cd ${ghdir}; perl install.pl force
+
+concat_aln:
+	@echo "Download ${caurl}"
+	cd ${cwd}/bin; wget -c ${caurl}
+
+consensus:
+	@echo "Download ${courl}"
+	cd ${cwd}/bin; wget -c ${courl}
+
