@@ -12,7 +12,7 @@ R Sancho, LA Inda, A Díaz-Pérez, DL Des Marais, SP Gordon, J Vogel, B Contrera
 
 ### Software dependencies
 
-This pipeline has several software pipelines, which can be installed as explained below in folder [bin/](./bin):
+This pipeline has several dependencies, which can be installed as explained below in folder [bin/](./bin):
 
 |software|URL|
 |-------|---|
