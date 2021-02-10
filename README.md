@@ -1,4 +1,4 @@
-# PhyloSD: Phylogenomic Subgenomic Detection pipeline
+# PhyloSD: Phylogenomic Subgenome Detection pipeline
 
 [![Build Status](https://travis-ci.com/eead-csic-compbio/allopolyploids.svg?branch=master)](https://travis-ci.com/eead-csic-compbio/allopolyploids)
 
