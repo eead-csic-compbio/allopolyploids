@@ -2,13 +2,16 @@
 
 [![Build Status](https://travis-ci.com/eead-csic-compbio/allopolyploids.svg?branch=master)](https://travis-ci.com/eead-csic-compbio/allopolyploids)
 
-This pipeline was designed by Ruben Sancho, Antonio Diaz, Pilar Catalan and Bruno Contreras Moreira for the subgenome identification of homeologous diploid genomes present in allopolyploids, also considering potentially unknown progenitors. Phylogenomic Subgenomic Detection (PhyloSD) pipeline includes three sequential Nearest Diploid Species Node, Bootstrapping Refinement, and Subgenome Assignment algorithms.
+This pipeline was designed by Ruben Sancho, Antonio Diaz, Pilar Catalan and Bruno Contreras Moreira for the subgenome identification of homeologous diploid genomes present in allopolyploids, also considering potentially unknown progenitors. 
+
+The Phylogenomic Subgenomic Detection (PhyloSD) pipeline includes three sequential Nearest Diploid Species Node, Bootstrapping Refinement, and Subgenome Assignment algorithms.
 
 The protocol is explained in detail in the article (publication in process) titled:
 
 PhyloSD: Phylogenomic detection of known and ghost subgenomes of polyploid plants
-
 R Sancho, LA Inda, A Díaz-Pérez, DL Des Marais, SP Gordon, J Vogel, B Contreras-Moreira, P Catalán
+
+A Docker container with all dependencies preinstalled can be found at https://hub.docker.com/repository/docker/eeadcsiccompbio/allopolyploids
 
 <!-- made with perl -lne 'if(/^(#{1,}) (.*)/){ ($i,$t)=($1,$2); $l=lc($t); $l=~s/\W/\-/g; print "$i [$t](#$l)"}'-->
 
@@ -141,9 +144,11 @@ bin/get_homologues/compare_clusters.pl \
 -o core_clusters_Brachypodium -m -n &> compare.core.log
 ```
 
-We can plot an Average Nucleotide Identity (ANI) matrix:
+We can optionally plot an Average Nucleotide Identity (ANI) matrix:
 
 ```
+# Note: this requires additional R dependencies
+bin/get_homologues/install_R_deps.R
 bin/get_homologues/plot_matrix_heatmap.sh -i \
    genome_transcripts_est_homologues/arb8075_alltaxa_no_sorghum_no_sylCor.list_algOMCL_e0_S80_Avg_identity.tab \
    -H 14 -W 26 -t "ANI of transcripts in 3675 core clusters" -N -o pdf
