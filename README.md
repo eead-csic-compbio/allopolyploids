@@ -11,7 +11,9 @@ The protocol is explained in detail in the article (publication in process) titl
 PhyloSD: Phylogenomic detection of known and ghost subgenomes of polyploid plants
 R Sancho, LA Inda, A Díaz-Pérez, DL Des Marais, SP Gordon, J Vogel, B Contreras-Moreira, P Catalán
 
-A Docker container with all dependencies preinstalled can be found at https://hub.docker.com/repository/docker/eeadcsiccompbio/allopolyploids
+A Docker container with all dependencies installed can be found at:
+
+https://hub.docker.com/r/eeadcsiccompbio/allopolyploids
 
 <!-- made with perl -lne 'if(/^(#{1,}) (.*)/){ ($i,$t)=($1,$2); $l=lc($t); $l=~s/\W/\-/g; print "$i [$t](#$l)"}'-->
 
