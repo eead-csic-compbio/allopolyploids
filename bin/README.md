@@ -1,1 +1,1 @@
-This is where make installs puts third-party software dependencies
+This is where 'make install' puts third-party software dependencies
