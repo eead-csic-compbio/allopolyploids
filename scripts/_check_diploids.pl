@@ -21,7 +21,7 @@ use Bio::Phylo::IO;
 use Bio::Phylo::Forest::Tree;
 
 # external dependency, clone it from https://github.com/tjunier/newick_utils 
-my $PRUNEXE = $Bin . '/../bin/newick-utils/src/nw_prune'; 
+my $PRUNEXE = $Bin . '/../bin/newick_utils/src/nw_prune'; 
 
 # test it
 my $test_output = `$PRUNEXE 2>&1`;
