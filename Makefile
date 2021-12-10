@@ -12,8 +12,8 @@ trimtar="v1.4.1.tar.gz"
 trimalurl="https://github.com/inab/trimal/archive/refs/tags/${trimtar}"
 
 # newick_utils, see https://github.com/tjunier/newick_utils
-nudir="newick_utils"
-nuurl="https://github.com/tjunier/${nudir}.git"
+nudir="newick-utils-1.6"
+nutar="newick-utils-1.6.tar.gz"
 
 # IQ-TREE, see http://www.iqtree.org
 iqtar="iqtree-1.6.12-Linux.tar.gz"
@@ -45,8 +45,8 @@ trimal:
 	cd ${cwd}/bin; wget -c ${trimalurl}; tar xfz ${trimtar}; cd ${trimdir}/source; make; cd ../..; rm ${trimtar}
 
 newick_utils:
-	@echo "Downloading ${nuurl}"
-	cd ${cwd}/bin; git clone ${nuurl}; cd ${nudir}; autoreconf -fi; ./configure; make	
+	@echo "Compiling ${nudir}"
+	cd ${cwd}/bin; tar xfz ${nutar}; cd ${nudir}; ./configure; make	
 
 iqtree:
 	@echo "Downloading ${iqurl}"
