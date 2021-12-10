@@ -6,10 +6,10 @@ cwd=${PWD}
 
 ## third-party dependencies
 
-# trimal, see https://github.com/scapella/trimal
+# trimal, see https://github.com/inab/trimal
 trimdir="trimal-1.4.1"
 trimtar="v1.4.1.tar.gz"
-trimalurl="https://github.com/scapella/trimal/archive/${trimtar}"
+trimalurl="https://github.com/inab/trimal/archive/refs/tags/${trimtar}"
 
 # newick_utils, see http://cegg.unige.ch/newick_utils
 nudir="newick-utils"
