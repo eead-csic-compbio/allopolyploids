@@ -35,7 +35,7 @@ brachyurl="https://github.com/eead-csic-compbio/allopolyploids/releases/download
 
 
 install:
-	make trimal newick_utils iqtree get_homologues concat_aln consensus
+	make trimal newick_utils iqtree get_homologues concat_aln consensus perldeps
 
 test:
 	perl allopolyploids.t
@@ -63,6 +63,10 @@ concat_aln:
 consensus:
 	@echo "Downloading ${courl}"
 	cd ${cwd}/bin; wget -c ${courl}
+
+perldeps:
+	@echo "Installing perl dependencies"
+	cd ${cwd}; cpanm -v --installdeps --local-lib bin --notest --cpanfile cpanfile .
 
 brachy:
 	@echo "Downloading ${brachyurl}"

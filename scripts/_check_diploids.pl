@@ -15,7 +15,8 @@ use FindBin '$Bin';
 use lib "$Bin";
 use polyconfig;
 
-# external dependencies, need to be installed
+# external dependencies, might need to be installed
+use lib "$Bin/../bin/lib/perl5";
 use Bio::TreeIO;
 use Bio::Phylo::IO;
 use Bio::Phylo::Forest::Tree;
