@@ -253,7 +253,7 @@ We can now trim the resulting blocks with https://vicfero.github.io/trimal to re
 ```
 for FILE in *block.fna; do
 echo $FILE;
-bin/trimal/source/trimal -in $FILE -out $FILE.trimmed.fna -automated1;
+bin/trimal-1.4.1/source/trimal -in $FILE -out $FILE.trimmed.fna -automated1;
 done
 ```
 
@@ -800,7 +800,7 @@ During the previous steps, some columns could have been transformed into "allgap
 ```
 for FILE in *.fna; do
 echo $FILE;
-bin/trimal/source/trimal -in $FILE -out $FILE.noallgaps.fna -noallgaps -keepheader -keepseqs;
+bin/trimal-1.4.1/source/trimal -in $FILE -out $FILE.noallgaps.fna -noallgaps -keepheader -keepseqs;
 done
 ```
 
@@ -852,7 +852,7 @@ Run in 07_labelled_alignment_corrected_filtered directory
 ```
 for FILE in *filtered.fna; do
 echo $FILE;
-bin/trimal/source/trimal -in $FILE -out $FILE.noallgaps.fna -noallgaps -keepheader -keepseqs;
+bin/trimal-1.4.1/source/trimal -in $FILE -out $FILE.noallgaps.fna -noallgaps -keepheader -keepseqs;
 done
 ```
 The filtered and corrected files are saved such as compressed fasta.label.trimmed.filtered.noallgaps.tar.bz2 files.
