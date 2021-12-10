@@ -22,12 +22,14 @@ clean:
 nearest_diploid_species_node_1:
 	mkdir -p ${outdir02};
 	for FILE in ${outdir01}/*.fa; do\
-        BSFILE=$$(basename $$FILE);\
-		perl ${scripts_dir}/_trim_MSA_block.pl -i $$FILE -o ${outdir02}/$${BSFILE}.block.fna\
-			-m 100 -M 100 -O 0.5 -R 'c\d+_g\d+_i' -t ${scripts_dir}/species2rename.tsv\
+		BSFILE=$$(basename $$FILE);\
+		perl ${scripts_dir}/_trim_MSA_block.pl -i $$FILE\
+			-o ${outdir02}/$${BSFILE}.block.fna\
+			-m 100 -M 100 -O 0.5 -R 'c\d+_g\d+_i'\
+			-t ${scripts_dir}/species2rename.tsv\
 			>> ${outdir01}/blocks_Brachypodium_toy.log;\
 		echo ${outdir02}/$${BSFILE}.block.fna;\
-    done;
+	done;
 
 # Remove inconsistent positions in the alignments (trimAl)
 # input: ${outdir02} output: ${outdir02}
@@ -63,6 +65,4 @@ nearest_diploid_species_node_5:
 		perl ${scripts_dir}/_check_diploids.pl $$FILE;\
 	done > ${outdir04}/diploids_Brachypodium_toy.log;\
 	tail ${outdir04}/diploids_Brachypodium_toy.log
-
-	
 
