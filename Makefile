@@ -11,8 +11,8 @@ trimdir="trimal-1.4.1"
 trimtar="v1.4.1.tar.gz"
 trimalurl="https://github.com/inab/trimal/archive/refs/tags/${trimtar}"
 
-# newick_utils, see http://cegg.unige.ch/newick_utils
-nudir="newick-utils"
+# newick_utils, see https://github.com/tjunier/newick_utils
+nudir="newick_utils"
 nuurl="https://github.com/tjunier/${nudir}.git"
 
 # IQ-TREE, see http://www.iqtree.org
@@ -46,7 +46,7 @@ trimal:
 
 newick_utils:
 	@echo "Downloading ${nuurl}"
-	cd ${cwd}/bin; git clone ${nuurl}; cd ${nudir}; ./configure; make	
+	cd ${cwd}/bin; git clone ${nuurl}; cd ${nudir}; autoreconf -fi; ./configure; make	
 
 iqtree:
 	@echo "Downloading ${iqurl}"
