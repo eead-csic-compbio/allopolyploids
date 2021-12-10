@@ -6,10 +6,11 @@ This pipeline was designed by Ruben Sancho, Antonio Diaz, Pilar Catalan and Brun
 
 The Phylogenomic Subgenomic Detection (PhyloSD) pipeline includes three sequential Nearest Diploid Species Node, Bootstrapping Refinement, and Subgenome Assignment algorithms.
 
-The protocol is explained in detail in the article (publication in process) titled:
+The protocol is explained in detail in the article (Accepted in The Plant Journal) titled:
 
-PhyloSD: Phylogenomic detection of known and ghost subgenomes of polyploid plants
-R Sancho, LA Inda, A Díaz-Pérez, DL Des Marais, SP Gordon, J Vogel, B Contreras-Moreira, P Catalán
+Tracking the Ancestry of Known and ‘Ghost’ Homeologous Subgenomes in Model Grass Brachypodium Polyploids
+Rubén Sancho, Luis A. Inda, Antonio Díaz-Pérez, David L. Des Marais, Sean Gordon, John P. Vogel, Joanna Lusinska, Robert Hasterok, Bruno Contreras-Moreira, Pilar Catalán.
+The supporting information (supplementary tables, figures, appendix and methods) that accompanies this paper can be found at Dryad repository https://doi.org/10.5061/dryad.ncjsxksqw
 
 A Docker container with all dependencies installed can be found at:
 
