@@ -47,15 +47,13 @@ In addition, the instructions below require **wget**, **curl**, **make**, **git*
 In Debian-like systems like Ubuntu please copy and paste the following command lines in your terminal to install:
 
 ```
-# Perl
+# system dependencies
 sudo apt-get install -y libdb-dev parallel git curl cpanminus
-curl -L https://cpanmin.us | perl - --sudo App::cpanminus
-cpanm --sudo -v --installdeps --notest --cpanfile cpanfile .
 
 # R 
 sudo apt-get install -y r-base
 
-# third-party binaries
+# third-party binaries and Perl dependencies
 make install
 ```
 
@@ -64,17 +62,16 @@ In RedHat-like systems:
 # Perl
 sudo yum install libdb-devel
 curl -L https://cpanmin.us | perl - --sudo App::cpanminus
-cpanm --sudo -v --installdeps --notest --cpanfile cpanfile .
 
 # R
 sudo yum install epel-release
 sudo apt-get install R
 
-# third-party binaries
+# third-party binaries and Perl dependencies
 make install
 ```
 
-In order to check you installation please run:
+In order to check yout installation please run:
 ```
 make test
 ```
