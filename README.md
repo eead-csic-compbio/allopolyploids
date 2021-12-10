@@ -2,14 +2,13 @@
 
 [![Build Status](https://travis-ci.com/eead-csic-compbio/allopolyploids.svg?branch=master)](https://travis-ci.com/eead-csic-compbio/allopolyploids)
 
-This pipeline was designed by Ruben Sancho, Antonio Diaz, Pilar Catalan and Bruno Contreras Moreira for the subgenome identification of homeologous diploid genomes present in allopolyploids, also considering potentially unknown progenitors. 
+This pipeline was designed for the subgenome identification of homeologous diploid genomes present in allopolyploids, also considering potentially unknown progenitors. 
 
 The Phylogenomic Subgenomic Detection (PhyloSD) pipeline includes three sequential Nearest Diploid Species Node, Bootstrapping Refinement, and Subgenome Assignment algorithms.
 
-The protocol is explained in detail in the article (Accepted in The Plant Journal) titled:
+The protocol is explained in detail in:
 
-Tracking the Ancestry of Known and ‘Ghost’ Homeologous Subgenomes in Model Grass Brachypodium Polyploids.
-Rubén Sancho, Luis A. Inda, Antonio Díaz-Pérez, David L. Des Marais, Sean Gordon, John P. Vogel, Joanna Lusinska, Robert Hasterok, Bruno Contreras-Moreira, Pilar Catalán.
+R Sancho, LA Inda, A Diaz-Perez,L Des Marais, S Gordon, JP Vogel, J Lusinska, R Hasterok, B Contreras-Moreira, P Catalan (2022) Tracking the Ancestry of Known and 'Ghost' Homeologous Subgenomes in Model Grass Brachypodium Polyploids. Accepted in the Plant Journal.
 
 The supporting information (supplementary tables, figures, appendix and methods) that accompanies this paper can be found at Dryad repository https://doi.org/10.5061/dryad.ncjsxksqw
 
@@ -35,8 +34,8 @@ This pipeline has several dependencies, which can be installed as explained belo
 
 |software|URL|
 |-------|---|
-|TrimAl|https://github.com/scapella/trimal|
-|newick_utils|http://cegg.unige.ch/newick_utils|
+|TrimAl|https://github.com/inab/trimal|
+|newick_utils|https://github.com/tjunier/newick_utils|
 |IQ-TREE|http://www.iqtree.org|
 |GET_HOMOLOGUES-EST|https://github.com/eead-csic-compbio/get_homologues|
 |concat_alignments.pl|https://github.com/vinuesa/get_phylomarkers|
