@@ -12,7 +12,7 @@ R Sancho, LA Inda, A Diaz-Perez,L Des Marais, S Gordon, JP Vogel, J Lusinska, R 
 
 The supporting information (supplementary tables, figures, appendix and methods) that accompanies this paper can be found at Dryad repository https://doi.org/10.5061/dryad.ncjsxksqw
 
-A Docker container with all dependencies installed can be found at:
+A Docker container with dependencies installed can be found at:
 
 https://hub.docker.com/r/eeadcsiccompbio/allopolyploids
 
