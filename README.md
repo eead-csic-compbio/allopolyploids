@@ -8,7 +8,7 @@ The Phylogenomic Subgenomic Detection (PhyloSD) pipeline includes three sequenti
 
 The protocol is explained in detail in:
 
-R Sancho, LA Inda, A Diaz-Perez,L Des Marais, S Gordon, JP Vogel, J Lusinska, R Hasterok, B Contreras-Moreira, P Catalan (2022) Tracking the Ancestry of Known and 'Ghost' Homeologous Subgenomes in Model Grass Brachypodium Polyploids. Accepted in the Plant Journal.
+R Sancho, LA Inda, A Diaz-Perez,L Des Marais, S Gordon, JP Vogel, J Lusinska, R Hasterok, B Contreras-Moreira, P Catalan (2022) Tracking the Ancestry of Known and 'Ghost' Homeologous Subgenomes in Model Grass Brachypodium Polyploids. *The Plant Journal* http://doi.org/10.1111/tpj.15650 
 
 The supporting information (supplementary tables, figures, appendix and methods) that accompanies this paper can be found at Dryad repository https://doi.org/10.5061/dryad.ncjsxksqw
 
