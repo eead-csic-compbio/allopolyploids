@@ -29,6 +29,12 @@ our $ROOT = 'Osat';
 # Abbreviated names of polyploid species as found in FASTA and tree files.
 our @polyploids = ('Bmex', 'Bboi', 'Bret', 'Bhyb', 'Brup', 'Bpho', 'B422');
 
+# Abbreviated names of polyploid subgenomes, defined by user.
+# These are used to annotate alleles from the subgenomes as ancestral.
+# Leave empty if not required
+our @subgenomes = ();
+
+
 # Abbreviated names of labelled polyploid sequences as found in FASTA and tree files.
 # Note that the capital letters correpond to @CODES below
 our @polyploids_labelled = (
