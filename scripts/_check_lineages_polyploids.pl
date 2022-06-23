@@ -676,6 +676,7 @@ if(@subgenomes) {
 
       # assign ancestral state to selected allele (ie Brame.04PG201900_Bme)
       $anc_subgeno{$anc_subgenome}{$lineage_code} = $anc_geneid;
+      print "# ancestral subgenome: $anc_geneid $anc_subgenome\_$lineage_code\n\n";
     } 
   }
 }
