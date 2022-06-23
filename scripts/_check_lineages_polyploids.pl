@@ -42,7 +42,7 @@ my $MSAwidth = 0;
 my ($coord,$coord5,$coord3,$midcoord,$node2_id);
 my ($d,$header,$node1,$node2,$taxon1,$taxon2,$bases,$lineage_code,$full_taxon);
 my ($poly_ancestor_MRCA,$desc_is_sister,$anc_is_sister,$next_MRCA);
-my (%length,%FASTA,%id2node,%dip_taxon,%MRCA_computed,%dip_ancestor);
+my (%length,%FASTA,%id2node,%dip_taxon,%MRCA_computed,%dip_ancestor,%anc_subgeno);
 my (%dip_all_ancestors,%dip_all_ancestors_string,%diptaxon2node,%header2label);
 my ($MRCA,$diploid_MRCA,$diploid_MRCA_node,%dip_MRCA,@sorted_diploid_taxa);
 my (@sorted_clade_MRCA_nodes,%clade_MRCA_nodes,%clade_MRCA,%clade_ancestors);
@@ -409,7 +409,7 @@ if($MSA_file ne ''){
 }
 
 # find polyploid nodes, label nr and add them to labelled MSA
-my (%taxon_seqs, %taxon_stats, %node_ancestor);
+my (%taxon_seqs, %taxon_stats, %node_ancestor, %taxon_diploid_anc);
 
 foreach $taxon (@polyploids)
 {
@@ -614,6 +614,7 @@ foreach $taxon (@polyploids)
       }
 
       push(@{$taxon_seqs{$taxon}{$lineage_code}},$node1->id());
+      $taxon_diploid_anc{$taxon}{$lineage_code} = $anc_dip_taxon;
     }
   } 
 } # foreach $taxon
@@ -622,11 +623,14 @@ foreach $taxon (@polyploids)
 # try to annotate ancestral labels
 if(@subgenomes) {
 
+  my ($subgeno,$total_nodes_to_diploid_anc,$diploid_anc);
+  my ($min_anc_dip, $anc_subgenome, $anc_geneid);
+
   foreach $lineage_code (@CODES) {
 
-    my ($subgeno);
-    my (%same_label_nodes, %diff_ancestors);
-    foreach my $subgeno (@subgenomes) {
+    my (%same_label_nodes, %diff_ancestors, @anc_nodes);
+
+    foreach $subgeno (@subgenomes) {
       next if(!$taxon_seqs{$subgeno}{$lineage_code});
       foreach $node1 (@{ $taxon_seqs{$subgeno}{$lineage_code} }) {
 	push(@{ $same_label_nodes{$subgeno} }, $node1);
@@ -636,34 +640,45 @@ if(@subgenomes) {
     # as many label occurrences as subgenomes,
     # these labels can potentially be annotated as ancestors
     if(scalar(keys(%same_label_nodes)) == scalar(@subgenomes)) {
-      print "$lineage_code\n";
 
-      # skip if they are sister nodes
-      foreach my $subgeno (@subgenomes) {
+      # are they sister nodes?
+      foreach $subgeno (@subgenomes) {
          foreach $node1 (@{ $taxon_seqs{$subgeno}{$lineage_code} }) {
            $diff_ancestors{$node_ancestor{$node1}}++;
-	   #print "$subgeno , $node1 , $node_ancestor{$node1}\n";
+	   print "$subgeno , $node1 , $node_ancestor{$node1}\n" if($verbose);
 	 }		 
       }
+
+      # if there's only one ancestor they're sisters, skip 
       next if(scalar(keys(%diff_ancestors)) == 1);
 
       # compute which subgenome allele is ancestral
-      
-      # assign ancestral state to selected allele
+      $min_anc_dip = 1000;
+      ($anc_geneid, $anc_subgenome) = ('','');
+      foreach $subgeno (@subgenomes) {
+        foreach $node1 (@{ $taxon_seqs{$subgeno}{$lineage_code} }) {
+          $total_nodes_to_diploid_anc = 0;
+          $diploid_anc = $dip_all_ancestors{$diptaxon2node{$taxon_diploid_anc{$subgeno}{$lineage_code}}}->[0];
+	  @anc_nodes = get_all_ancestors($node_ancestor{$node1});
+          foreach $node2 (0 .. $#anc_nodes) {
+            last if($anc_nodes[$node2] == $diploid_anc);
+            $total_nodes_to_diploid_anc++;
+	  }	  
+
+	  if($total_nodes_to_diploid_anc < $min_anc_dip) {
+            $min_anc_dip = $total_nodes_to_diploid_anc;
+            $anc_subgenome = $subgeno;	    
+	    $anc_geneid = $node1;
+          } 
+	  print "subgenome: $anc_subgenome $anc_geneid $total_nodes_to_diploid_anc\n" if($verbose);
+        }
+      }
+
+      # assign ancestral state to selected allele (ie Brame.04PG201900_Bme)
+      $anc_subgeno{$anc_subgenome}{$lineage_code} = $anc_geneid;
     } 
   }
-
-
-  # TODO: adding ancestor labels to @CODES
-  #   94 my @subgenomes = @polyconfig::subgenomes;
-  #    95 if(scalar(@subgenomes) > 0) {
-  #foreach $lineage_code (@CODES) {
-	  #push(@CODES, "$lineage_code'");
-	  #}
-  
 }
-
-
 
 # add labels to polyploid sequence headers and tree nodes,
 # print nr polyploid sequences to labelled MSA, max 1 per label,
@@ -700,8 +715,8 @@ foreach $taxon (@polyploids) {
 				
         $header2label{$header} = $lineage_code;
 
-        # one sequence considered per taxon
-        # if sequence lengths are available, it would be the longest one
+        # one sequence per taxon; if sequence lengths are available, 
+        # it would be the longest one
         last; 
       }
     }
@@ -712,10 +727,14 @@ foreach $taxon (@polyploids) {
     }
   }
  
-  #stats in matrix format 
+  # stats in matrix format 
   print "$taxon";
   foreach $lineage_code (@CODES){
-    printf("\t%d",$taxon_stats{$taxon}{$lineage_code} || 0);
+    if($anc_subgeno{$taxon}{$lineage_code}) {
+      printf("\t%d\*",$taxon_stats{$taxon}{$lineage_code});
+    } else {
+      printf("\t%d",$taxon_stats{$taxon}{$lineage_code} || 0);
+    }
   } print "\n";
 }
 
