@@ -7,10 +7,11 @@ require Exporter;
 
 our @ISA = qw( Exporter );
 
-our @EXPORT = qw(
-	get_label_from_rules
-	@diploids @polyploids %outgroups $ROOT %sister_clades @CODES $NODEORDER
-	$MINBLOCKLENGTH $MAXGAPSPERBLOCK $MINBLOCKOVERLAP
+our @EXPORT = qw( 
+  get_label_from_rules
+  @diploids @polyploids @subgenomes 
+  %outgroups $ROOT %sister_clades @CODES $NODEORDER
+  $MINBLOCKLENGTH $MAXGAPSPERBLOCK $MINBLOCKOVERLAP
 );
 
 # Abbreviated names of diploid species as found in FASTA and tree files.
@@ -19,8 +20,8 @@ our @diploids = qw( Osat Hvul Bsta Bdis Barb Bpin Bsyl );
 
 # note these are diploids as well; hash instead of list
 our %outgroups = ( 
-'Osat',1, 
-'Hvul',1 
+  'Osat',1, 
+  'Hvul',1 
 );
 
 # diploid used to root trees 
@@ -96,100 +97,96 @@ our $NODEORDER = 0; # 1:increasing, 0:decreasing
 # Returns a label, which is either a code from @CODES or '-' otherwise
 sub get_label_from_rules {
 
-	my ($anc_dip_taxon, $desc_dip_taxon, $anc_is_sister, $desc_is_sister) = @_;
+  my ($anc_dip_taxon, $desc_dip_taxon, $anc_is_sister, $desc_is_sister) = @_;
 	
-	my  $lineage_code = '-';
+  my  $lineage_code = '-';
 
-	# check input params
-	my $ancOK = 0;
-	if(grep(/^$anc_dip_taxon/,@diploids)){ $ancOK = 1 }
-	if(defined($sister_clades{$anc_dip_taxon})){ $ancOK = 1 }
-	else {
-		foreach my $MRCA (keys(%sister_clades)){
-			if(defined($sister_clades{$MRCA}{$anc_dip_taxon})){
-				$ancOK = 1; 
-				last;
-			}
-		}
-	}	
-	if($ancOK == 0){
-		print "# ERROR (get_label_from_rules): unrecognized ancestor $anc_dip_taxon\n";
-		return $lineage_code;
-	}	
+  # check input params
+  my $ancOK = 0;
+  if(grep(/^$anc_dip_taxon/,@diploids)){ $ancOK = 1 }
+  if(defined($sister_clades{$anc_dip_taxon})){ $ancOK = 1 }
+  else {
+    foreach my $MRCA (keys(%sister_clades)){
+      if(defined($sister_clades{$MRCA}{$anc_dip_taxon})){
+        $ancOK = 1; 
+        last;
+      }
+    }
+  }	
+  if($ancOK == 0){
+    print "# ERROR (get_label_from_rules): unrecognized ancestor $anc_dip_taxon\n";
+    return $lineage_code;
+  }	
 
-	my $descOK = 0;
-   if(grep(/^$desc_dip_taxon/,@diploids)){ $descOK = 1 }
-   if(defined($sister_clades{$desc_dip_taxon})){ $descOK = 1 }
-   else {
-      foreach my $MRCA (keys(%sister_clades)){
-         if(defined($sister_clades{$MRCA}{$desc_dip_taxon})){
-            $descOK = 1;
-            last;
-         }
-		}
-   }
-   if($descOK == 0){
-      print "# ERROR (get_label_from_rules): unrecognized descendant $desc_dip_taxon\n";
-      return $lineage_code;
-   }
+  my $descOK = 0;
+  if(grep(/^$desc_dip_taxon/,@diploids)){ $descOK = 1 }
+  if(defined($sister_clades{$desc_dip_taxon})){ $descOK = 1 }
+  else {
+    foreach my $MRCA (keys(%sister_clades)){
+      if(defined($sister_clades{$MRCA}{$desc_dip_taxon})){
+        $descOK = 1;
+        last;
+      }
+    }
+  }
+  if($descOK == 0){
+    print "# ERROR (get_label_from_rules): unrecognized descendant $desc_dip_taxon\n";
+    return $lineage_code;
+  }
 
-	# start applying rules
+  # start applying rules
 	
-	## ancestor is sister or descendant is empty, 
-	## only ancestor diploid is looked up
-	if($anc_is_sister == 1 || $desc_dip_taxon eq ''){
-		if($anc_dip_taxon eq 'Bsta'){ $lineage_code = 'B' }
-		elsif($anc_dip_taxon eq 'Bdis'){ $lineage_code = 'D' }
-		elsif($anc_dip_taxon eq 'Barb'){ $lineage_code = 'F' }
-		elsif($anc_dip_taxon eq 'Bsyl'){ $lineage_code = 'H' }
-		elsif($anc_dip_taxon eq 'Bpin'){ $lineage_code = 'I' }
-	}
-	else { ## both ancestor/descendant diploids/clades are considered
+  ## ancestor is sister or descendant is empty, 
+  ## only ancestor diploid is looked up
+  if($anc_is_sister == 1 || $desc_dip_taxon eq ''){
+    if($anc_dip_taxon eq 'Bsta'){ $lineage_code = 'B' }
+    elsif($anc_dip_taxon eq 'Bdis'){ $lineage_code = 'D' }
+    elsif($anc_dip_taxon eq 'Barb'){ $lineage_code = 'F' }
+    elsif($anc_dip_taxon eq 'Bsyl'){ $lineage_code = 'H' }
+    elsif($anc_dip_taxon eq 'Bpin'){ $lineage_code = 'I' }
+  }
+  else { ## both ancestor/descendant diploids/clades are considered
 
-		if($anc_dip_taxon eq 'Hvul' && $desc_dip_taxon eq 'Bsta'){ 
-			$lineage_code = 'A' 
-		}
-		elsif($anc_dip_taxon eq 'Bsta' && $desc_dip_taxon eq 'Bdis'){ 
-			$lineage_code = 'C' 
-		}
-		elsif($anc_dip_taxon eq 'Bdis' && $desc_dip_taxon eq 'Barb'){ 
-			$lineage_code = 'E' 
-		}
-		elsif($anc_dip_taxon eq 'Barb' && $desc_dip_taxon eq 'MRCABsylBpin'){
-			$lineage_code = 'G'
-		}
-      elsif($anc_dip_taxon eq 'MRCABsylBpin' && $desc_dip_taxon eq 'Bsyl'){
-            $lineage_code = 'H'
+    if($anc_dip_taxon eq 'Hvul' && $desc_dip_taxon eq 'Bsta'){ 
+      $lineage_code = 'A' 
+    }
+    elsif($anc_dip_taxon eq 'Bsta' && $desc_dip_taxon eq 'Bdis'){ 
+      $lineage_code = 'C' 
+    }
+    elsif($anc_dip_taxon eq 'Bdis' && $desc_dip_taxon eq 'Barb'){ 
+      $lineage_code = 'E' 
+    }
+    elsif($anc_dip_taxon eq 'Barb' && $desc_dip_taxon eq 'MRCABsylBpin'){
+      $lineage_code = 'G'
+    }
+    elsif($anc_dip_taxon eq 'MRCABsylBpin' && $desc_dip_taxon eq 'Bsyl'){
+      $lineage_code = 'H'
+    }
+    elsif($anc_dip_taxon eq 'MRCABsylBpin' && $desc_dip_taxon eq 'Bpin'){
+      $lineage_code = 'I'
+    }
+    elsif($anc_dip_taxon eq 'Bsyl' && $desc_dip_taxon eq 'Bpin'){
+      $lineage_code = 'I'
+    }
+    elsif($anc_dip_taxon eq 'Bpin' && $desc_dip_taxon eq 'Bsyl'){
+      $lineage_code = 'H'
+    }
+    # swapped Barb and Bsyl/Bpin
+    elsif($anc_dip_taxon eq 'MRCABsylBpin' || $anc_dip_taxon eq 'Bpin'
+          || $anc_dip_taxon eq 'Bsyl'){
+      if($desc_dip_taxon eq 'Barb'){
+        $lineage_code = 'F'
       }
-      elsif($anc_dip_taxon eq 'MRCABsylBpin' && $desc_dip_taxon eq 'Bpin'){
-            $lineage_code = 'I'
+    }
+    elsif($anc_dip_taxon eq 'Bdis'){
+      if($desc_dip_taxon eq 'MRCABsylBpin' || $desc_dip_taxon eq 'Bpin' 
+         || $desc_dip_taxon eq 'Bsyl'){
+        $lineage_code = 'E'
       }
-      elsif($anc_dip_taxon eq 'Bsyl' && $desc_dip_taxon eq 'Bpin'){
-         $lineage_code = 'I'
-      }
-      elsif($anc_dip_taxon eq 'Bpin' && $desc_dip_taxon eq 'Bsyl'){
-         $lineage_code = 'H'
-      }
+    }
+  }
 
-
-		# swapped Barb and Bsyl/Bpin
-      elsif($anc_dip_taxon eq 'MRCABsylBpin' || $anc_dip_taxon eq 'Bpin'
-				|| $anc_dip_taxon eq 'Bsyl'){
-         if($desc_dip_taxon eq 'Barb'){
-            $lineage_code = 'F'
-         }
-		}
-
-		 elsif($anc_dip_taxon eq 'Bdis'){
-         if($desc_dip_taxon eq 'MRCABsylBpin' || $desc_dip_taxon eq 'Bpin' 
-				|| $desc_dip_taxon eq 'Bsyl'){
-            $lineage_code = 'E'
-         }
-      }
-
-	}
-
-	return $lineage_code;
+  return $lineage_code;
 }
 
 1;
