@@ -6,5 +6,6 @@ requires 'IO::String';
 requires 'Bio::SeqIO';
 requires 'Bio::AlignIO';
 requires 'Bio::TreeIO';
+requires 'Bio::Tree::Node';
 requires 'Bio::Phylo::IO';
 requires 'Bio::Phylo::Forest::Tree';

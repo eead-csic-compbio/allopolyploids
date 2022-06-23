@@ -3,6 +3,8 @@ package polyutils;
 # B Contreras-Moreira, R Sancho, EEAD-CSIC & EPS-UNIZAR 2018-22
 
 use strict;
+use Bio::Tree::Node;
+
 require Exporter;
 
 our @ISA = qw( Exporter );
