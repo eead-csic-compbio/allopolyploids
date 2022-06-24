@@ -20,7 +20,7 @@ use polyconfig;
 my @polyploids = @polyconfig::polyploids;
 my @CODES = @polyconfig::CODES; 
 
-my ($taxon,$col,$code,%stats,%subgenostats);
+my ($taxon,$col,$code,$anc,%stats,%subgenostats);
 
 die "# usage: $0 <lineage_codes.log>\n" if(!$ARGV[0]);
 
@@ -41,8 +41,10 @@ while(my $line = <LOG>) {
       shift(@data);
       foreach $col (0 .. $#data){
         if($data[$col] =~ /(\d+)\*/) {
-          $subgenostats{$taxon}{$CODES[$col]} += $1;
-	  $subgenostats{$taxon}{'all'} += $1;
+          $anc = $1;
+          $subgenostats{$taxon}{$CODES[$col]} += $anc;
+	  $subgenostats{$taxon}{'all'} += $anc;
+          $stats{$taxon}{'all'} -= $anc;
         } else {
           $stats{$taxon}{$CODES[$col]} += $data[$col];
         }
