@@ -43,7 +43,7 @@ while(my $line = <LOG>) {
         if($data[$col] =~ /(\d+)\*/) {
           $anc = $1;
           $subgenostats{$taxon}{$CODES[$col]} += $anc;
-	  $subgenostats{$taxon}{'all'} += $anc;
+          $subgenostats{$taxon}{'all'} += $anc;
           $stats{$taxon}{'all'} -= $anc;
         } else {
           $stats{$taxon}{$CODES[$col]} += $data[$col];
